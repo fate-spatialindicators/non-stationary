@@ -1,0 +1,5 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+survey_data/*.rds
