@@ -1,7 +1,8 @@
 library(sdmTMB)
 library(sp)
 library(ggplot2)
-species = read.csv("survey_data/species_list.csv")
+
+species = read.csv("survey_data/species_list.csv") #data.frame(Scientific.Name = c("Anoplopoma fimbria","Sebastes alutus"))
 bio = readRDS("survey_data/wcbts_bio_2019-08-01.rds")
 haul = readRDS("survey_data/wcbts_haul_2019-08-01.rds")
 catch = readRDS("survey_data/wcbts_catch_2019-08-01.rds")
@@ -23,9 +24,6 @@ dat = dplyr::filter(dat, scientific_name %in% species$Scientific.Name)
 dat = dplyr::left_join(dat, catch[,c("trawl_id","scientific_name","year","subsample_count",
   "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")])
 
-# filter out sablefish
-dat = dplyr::filter(dat, scientific_name == "Anoplopoma fimbria")
-
 # do spatial conversion
 coordinates(dat) <- c("longitude_dd", "latitude_dd")
 proj4string(dat) <- CRS("+proj=longlat +datum=WGS84")
@@ -35,10 +33,13 @@ dat = as.data.frame(dat)
 dat$lon = dat$longitude_dd/1000
 dat$lat = dat$latitude_dd/1000
 
-# expansion:
-# for each trawlid, (1) figure out weight of fish in juvenile length bin
+# filter out sablefish
+dat = dplyr::filter(dat, scientific_name == "Anoplopoma fimbria")
+
+# first-stage expansion from subsample to total sample biomass:
+# for each trawl_id, (1) figure out weight of fish in juvenile length bin
 # (2) if subsample weight == total weight, expansion factor = 1. (3) if
-# subssample weight < total weight, expansion factor = total / subsample wt
+# subsample weight < total weight, expansion factor = total / subsample wt
 
 # filter out a few missing lengths
 dat = dplyr::filter(dat, !is.na(length_cm))
