@@ -39,7 +39,7 @@ dat$lon = dat$longitude_dd/1000
 dat$lat = dat$latitude_dd/1000
 
 # filter out species of interest
-dat = dplyr::filter(dat, scientific_name == "Anoplopoma fimbria")
+dat = dplyr::filter(dat, scientific_name == "Sebastes crameri")
 
 # first-stage expansion from subsample to total sample biomass:
 # for each trawl_id, (1) figure out weight of fish in juvenile length bin
@@ -48,9 +48,9 @@ dat = dplyr::filter(dat, scientific_name == "Anoplopoma fimbria")
 
 # fit length-weight regression by year and sex to predict fish weights that have lengths only.
 # note a rank-deficiency warning may indicate there is insufficient data for some year/sex combinations (likely for unsexed group)
-fitted = dat %>% 
+fitted = dat %>%
   select(common_name, scientific_name, year, trawl_id, lon, lat,
-         depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der, temperature_at_gear_c_der, 
+         depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der, temperature_at_gear_c_der,
          subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2,
          individual_tracking_id, sex, length_cm, weight_kg) %>%
   group_nest(year, sex)  %>%
@@ -62,13 +62,13 @@ fitted = dat %>%
   )
 
 # replace missing weights with predicted weights
-dat = fitted %>% 
-  unnest(predictions) %>% 
-  select(-data, -model, -tidied, -augmented) %>% 
+dat = fitted %>%
+  unnest(predictions) %>%
+  select(-data, -model, -tidied, -augmented) %>%
   mutate(weight = ifelse(is.na(weight_kg), exp(pred), weight_kg))
 
 # define length cutoff to define ontogenetic classes
-juv_threshold = 29 # sablefish specific
+juv_threshold = 15 # sablefish specific
 
 # this just summarizes data at trawl_id level and sums up juv_weight
 expanded = dplyr::group_by(dat, trawl_id) %>%
@@ -77,7 +77,8 @@ expanded = dplyr::group_by(dat, trawl_id) %>%
     total_catch_wt_kg = total_catch_wt_kg[1],
     cpue_kg_km2 = cpue_kg_km2[1],
     subsample_wt_kg = subsample_wt_kg[1],
-    juv_weight = sum(weight[which(length_cm < juv_threshold)])) %>%
+    juv_weight = sum(weight[which(length_cm < juv_threshold)]),
+    adult_weight = sum(weight[which(length_cm > juv_threshold)])) %>%
   dplyr::filter(!is.na(total_catch_wt_kg), !is.na(area_swept_ha_der))
 # expansion ratio is 1 for trawls with 100% subsampled catch. affects ~ 10% of trawls
 expanded$ratio = 1
