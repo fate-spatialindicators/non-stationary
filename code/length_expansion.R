@@ -20,14 +20,20 @@ haul$date_yyyymmdd = as.numeric(haul$date_yyyymmdd)
 haul$sampling_end_hhmmss = as.numeric(haul$sampling_end_hhmmss)
 haul$sampling_start_hhmmss = as.numeric(haul$sampling_start_hhmmss)
 
+
+
 # join in bio and haul data
-dat = dplyr::left_join(bio, haul)
+dat = dplyr::left_join(catch[,c("trawl_id","scientific_name","year","subsample_count",
+  "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")], haul) %>%
+  dplyr::left_join(bio) %>%
+  filter(!is.na(length_cm), performance == "Satisfactory")
+
 # filter species from list
 dat = dplyr::filter(dat, scientific_name %in% species$Scientific.Name)
 # bring in catch data which has total kg, filter haul performance and missing lengths
-dat = dat %>% left_join(catch[,c("trawl_id","scientific_name","year","subsample_count",
-  "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")]) %>%
-  filter(!is.na(length_cm), performance == "Satisfactory")
+#dat = dat %>% left_join(catch[,c("trawl_id","scientific_name","year","subsample_count",
+#  "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")]) %>%
+
 
 # do spatial conversion
 coordinates(dat) <- c("longitude_dd", "latitude_dd")
@@ -84,6 +90,8 @@ expanded = dplyr::group_by(dat, trawl_id) %>%
 expanded$ratio = 1
 indx = which(expanded$subsample_wt_kg < expanded$total_catch_wt_kg)
 expanded$ratio[indx] = expanded$total_catch_wt_kg[indx]/expanded$subsample_wt_kg[indx]
+
+
 
 # calculate cpue for juvenile
 expanded$juv_cpue = expanded$ratio * expanded$juv_weight / expanded$area_swept_ha_der
