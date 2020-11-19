@@ -6,7 +6,7 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 
-species = read.csv("survey_data/species_list.csv") #data.frame(Scientific.Name = c("Anoplopoma fimbria","Sebastes alutus"))
+#species = read.csv("survey_data/species_list.csv")
 bio = readRDS("survey_data/wcbts_bio_2019-08-01.rds")
 haul = readRDS("survey_data/wcbts_haul_2019-08-01.rds")
 catch = readRDS("survey_data/wcbts_catch_2019-08-01.rds")
@@ -20,20 +20,20 @@ haul$date_yyyymmdd = as.numeric(haul$date_yyyymmdd)
 haul$sampling_end_hhmmss = as.numeric(haul$sampling_end_hhmmss)
 haul$sampling_start_hhmmss = as.numeric(haul$sampling_start_hhmmss)
 
-
-
 # join in bio and haul data
 dat = dplyr::left_join(catch[,c("trawl_id","scientific_name","year","subsample_count",
   "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")], haul) %>%
-  dplyr::left_join(bio) %>%
-  filter(!is.na(length_cm), performance == "Satisfactory")
+  dplyr::left_join(filter(bio, !is.na(length_cm))) %>%
+  filter(performance == "Satisfactory")
 
 # filter species from list
-dat = dplyr::filter(dat, scientific_name %in% species$Scientific.Name)
+#dat = dplyr::filter(dat, scientific_name %in% species$Scientific.Name)
 # bring in catch data which has total kg, filter haul performance and missing lengths
 #dat = dat %>% left_join(catch[,c("trawl_id","scientific_name","year","subsample_count",
 #  "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")]) %>%
 
+# filter out species of interest
+dat = dplyr::filter(dat, scientific_name == "Anoplopoma fimbria")
 
 # do spatial conversion
 coordinates(dat) <- c("longitude_dd", "latitude_dd")
@@ -44,9 +44,6 @@ dat = as.data.frame(dat)
 dat$lon = dat$longitude_dd/1000
 dat$lat = dat$latitude_dd/1000
 
-# filter out species of interest
-dat = dplyr::filter(dat, scientific_name == "Sebastes crameri")
-
 # first-stage expansion from subsample to total sample biomass:
 # for each trawl_id, (1) figure out weight of fish in juvenile length bin
 # (2) if subsample weight == total weight, expansion factor = 1. (3) if
@@ -55,6 +52,7 @@ dat = dplyr::filter(dat, scientific_name == "Sebastes crameri")
 # fit length-weight regression by year and sex to predict fish weights that have lengths only.
 # note a rank-deficiency warning may indicate there is insufficient data for some year/sex combinations (likely for unsexed group)
 fitted = dat %>%
+  filter(!is.na(length_cm)) %>%
   select(common_name, scientific_name, year, trawl_id, lon, lat,
          depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der, temperature_at_gear_c_der,
          subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2,
@@ -68,16 +66,16 @@ fitted = dat %>%
   )
 
 # replace missing weights with predicted weights
-dat = fitted %>%
+dat_pos = fitted %>%
   unnest(predictions) %>%
   select(-data, -model, -tidied, -augmented) %>%
   mutate(weight = ifelse(is.na(weight_kg), exp(pred), weight_kg))
 
 # define length cutoff to define ontogenetic classes
-juv_threshold = 15 # sablefish specific
+juv_threshold = 29 # sablefish specific
 
 # this just summarizes data at trawl_id level and sums up juv_weight
-expanded = dplyr::group_by(dat, trawl_id) %>%
+expanded = dplyr::group_by(dat_pos, trawl_id) %>%
   dplyr::summarize(lon = lon[1], lat = lat[1], year = year[1],
     area_swept_ha_der = area_swept_ha_der[1],
     total_catch_wt_kg = total_catch_wt_kg[1],
@@ -86,14 +84,17 @@ expanded = dplyr::group_by(dat, trawl_id) %>%
     juv_weight = sum(weight[which(length_cm < juv_threshold)]),
     adult_weight = sum(weight[which(length_cm > juv_threshold)])) %>%
   dplyr::filter(!is.na(total_catch_wt_kg), !is.na(area_swept_ha_der))
-# expansion ratio is 1 for trawls with 100% subsampled catch. affects ~ 10% of trawls
+# expansion ratio is 1 for trawls where 100% of catch is lengthed. affects ~ 10% of trawls
 expanded$ratio = 1
 indx = which(expanded$subsample_wt_kg < expanded$total_catch_wt_kg)
 expanded$ratio[indx] = expanded$total_catch_wt_kg[indx]/expanded$subsample_wt_kg[indx]
 
+# calculate cpue for juveniles and adults separately
+expanded$juv_cpue_kg_km2 = expanded$ratio * expanded$juv_weight / (expanded$area_swept_ha_der / 100)
+expanded$adult_cpue_kg_km2 = expanded$cpue_kg_km2 - expanded$juv_cpue_kg_km2
 
-
-# calculate cpue for juvenile
-expanded$juv_cpue = expanded$ratio * expanded$juv_weight / expanded$area_swept_ha_der
-
-
+# add hauls with zero catch back in
+absent = filter(dat, cpue_kg_km2 == 0) %>%
+  select(trawl_id, lon, lat, year, area_swept_ha_der, total_catch_wt_kg, cpue_kg_km2, subsample_wt_kg) %>%
+  mutate(juv_weight = 0, adult_weight = 0, ratio = NA, juv_cpue_kg_km2 = 0, adult_cpue_kg_km2 = 0)
+dat_comb = rbind(expanded, absent)
