@@ -59,7 +59,7 @@ fitted = dat %>%
   filter(!is.na(length_cm)) %>%
   select(common_name, scientific_name, year, trawl_id, lon, lat,
          depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der, temperature_at_gear_c_der,
-         subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2,
+         subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2, depth_m,
          individual_tracking_id, sex, length_cm, weight_kg) %>%
   group_nest(year, sex)  %>%
   mutate(
@@ -81,6 +81,7 @@ expanded = dplyr::group_by(dat_pos, trawl_id) %>%
     area_swept_ha_der = area_swept_ha_der[1],
     total_catch_wt_kg = total_catch_wt_kg[1],
     cpue_kg_km2 = cpue_kg_km2[1],
+    depth_m = depth_m[1],
     subsample_wt_kg = subsample_wt_kg[1],
     juv_weight = sum(weight[which(length_cm < juv_threshold)]),
     adult_weight = sum(weight[which(length_cm > juv_threshold)])) %>%
@@ -96,7 +97,7 @@ expanded$adult_cpue_kg_km2 = expanded$cpue_kg_km2 - expanded$juv_cpue_kg_km2
 
 # add hauls with zero catch back in
 absent = filter(dat, cpue_kg_km2 == 0) %>%
-  select(trawl_id, lon, lat, year, area_swept_ha_der, total_catch_wt_kg, cpue_kg_km2, subsample_wt_kg) %>%
+  select(trawl_id, lon, lat, year, area_swept_ha_der, total_catch_wt_kg, cpue_kg_km2, subsample_wt_kg, depth_m) %>%
   mutate(juv_weight = 0, adult_weight = 0, ratio = NA, juv_cpue_kg_km2 = 0, adult_cpue_kg_km2 = 0)
 dat_comb = rbind(expanded, absent)
 
