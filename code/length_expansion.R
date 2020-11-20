@@ -7,7 +7,7 @@ library(tidyr)
 library(purrr)
 
 # define length cutoff to define ontogenetic classes
-juv_threshold = 15 # sablefish specific
+juv_threshold = 15 # spp specific
 sci_name = "Sebastes crameri"
 
 #species = read.csv("survey_data/species_list.csv")
