@@ -6,6 +6,10 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 
+# define length cutoff to define ontogenetic classes
+juv_threshold = 15 # sablefish specific
+sci_name = "Sebastes crameri"
+
 #species = read.csv("survey_data/species_list.csv")
 bio = readRDS("survey_data/wcbts_bio_2019-08-01.rds")
 haul = readRDS("survey_data/wcbts_haul_2019-08-01.rds")
@@ -33,7 +37,7 @@ dat = dplyr::left_join(catch[,c("trawl_id","scientific_name","year","subsample_c
 #  "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")]) %>%
 
 # filter out species of interest
-dat = dplyr::filter(dat, scientific_name == "Anoplopoma fimbria")
+dat = dplyr::filter(dat, scientific_name == sci_name)
 
 # do spatial conversion
 coordinates(dat) <- c("longitude_dd", "latitude_dd")
@@ -71,9 +75,6 @@ dat_pos = fitted %>%
   select(-data, -model, -tidied, -augmented) %>%
   mutate(weight = ifelse(is.na(weight_kg), exp(pred), weight_kg))
 
-# define length cutoff to define ontogenetic classes
-juv_threshold = 29 # sablefish specific
-
 # this just summarizes data at trawl_id level and sums up juv_weight
 expanded = dplyr::group_by(dat_pos, trawl_id) %>%
   dplyr::summarize(lon = lon[1], lat = lat[1], year = year[1],
@@ -98,3 +99,5 @@ absent = filter(dat, cpue_kg_km2 == 0) %>%
   select(trawl_id, lon, lat, year, area_swept_ha_der, total_catch_wt_kg, cpue_kg_km2, subsample_wt_kg) %>%
   mutate(juv_weight = 0, adult_weight = 0, ratio = NA, juv_cpue_kg_km2 = 0, adult_cpue_kg_km2 = 0)
 dat_comb = rbind(expanded, absent)
+
+saveRDS(dat_comb, file=paste0(sci_name,"_juv_cpue.rds"))
