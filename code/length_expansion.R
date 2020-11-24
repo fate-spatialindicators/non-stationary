@@ -7,8 +7,16 @@ library(tidyr)
 library(purrr)
 
 # define length cutoff to define ontogenetic classes
-juv_threshold = 15 # spp specific
-sci_name = "Sebastes crameri"
+species = read.csv("survey_data/species_list_revised.csv")
+names(species) = tolower(names(species))
+species = dplyr::rename(species,
+  common_name = common.name,
+  scientific_name = scientific.name,
+  juv_threshold = max.length.cm)
+
+spp_num = 2
+sci_name = species$scientific_name[spp_num]
+juv_threshold = species$juv_threshold[spp_num]
 
 #species = read.csv("survey_data/species_list.csv")
 bio = readRDS("survey_data/wcbts_bio_2019-08-01.rds")
@@ -56,7 +64,7 @@ dat$lat = dat$latitude_dd/1000
 # fit length-weight regression by year and sex to predict fish weights that have lengths only.
 # note a rank-deficiency warning may indicate there is insufficient data for some year/sex combinations (likely for unsexed group)
 fitted = dat %>%
-  filter(!is.na(length_cm)) %>%
+  filter(!is.na(length_cm), !is.na(weight_kg)) %>%
   select(common_name, scientific_name, year, trawl_id, lon, lat,
          depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der, temperature_at_gear_c_der,
          subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2, depth_m,
