@@ -1,14 +1,14 @@
-"","Common.name","Scientific.name","Max.length.cm"
-"1","Arrowtooth flounder","Atheresthes stomias",22
-"2","Darkblotched rockfish","Sebastes crameri",15
-"3","Dover sole","Microstomus pacificus",17
-"4","English sole","Parophrys vetulus",16
-"5","Lingcod","Ophiodon elongatus",25
-"6","Longspine thornyhead","Sebastolobus altivelis",7
-"7","Pacific grenadier","Coryphaenoides acrolepis",3
-"8","Pacific hake","Merluccius productus",15
-"9","Pacific sanddab","Citharichthys sordidus",13
-"10","Petrale sole","Eopsetta jordani",21
-"11","Sablefish","Anoplopoma fimbria",29
-"12","Shortspine thornyhead","Sebastolobus alascanus",8
-"13","Splitnose rockfish","Sebastes diploproa",10
+Common.name,Scientific.name,Max.length.cm
+Arrowtooth flounder,Atheresthes stomias,22
+Darkblotched rockfish,Sebastes crameri,15
+Dover sole,Microstomus pacificus,17
+English sole,Parophrys vetulus,16
+Lingcod,Ophiodon elongatus,25
+Longspine thornyhead,Sebastolobus altivelis,7
+Pacific grenadier,Coryphaenoides acrolepis,3
+Pacific hake,Merluccius productus,15
+Pacific sanddab,Citharichthys sordidus,13
+Petrale sole,Eopsetta jordani,21
+Sablefish,Anoplopoma fimbria,29
+Shortspine thornyhead,Sebastolobus alascanus,8
+Splitnose rockfish,Sebastes diploproa,10
