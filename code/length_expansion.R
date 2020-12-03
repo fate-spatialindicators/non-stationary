@@ -1,4 +1,4 @@
-# length expansion
+## Length Expansion ##
 
 library(sdmTMB)
 library(sp)
@@ -8,7 +8,7 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 
-# define length cutoff to define ontogenetic classes
+# Species of interest and max. juvenile lengths (define ontogenetic classes)
 species = read.csv("survey_data/species_list_revised.csv")
 names(species) = tolower(names(species))
 species = dplyr::rename(species,
@@ -16,11 +16,11 @@ species = dplyr::rename(species,
   scientific_name = scientific.name,
   juv_threshold = max.length.cm)
 
-spp_num = 2
+spp_num = 1
 sci_name = species$scientific_name[spp_num]
+comm_name = species$common_name[spp_num]
 juv_threshold = species$juv_threshold[spp_num]
 
-#species = read.csv("survey_data/species_list.csv")
 bio = readRDS("survey_data/wcbts_bio_2019-08-01.rds")
 haul = readRDS("survey_data/wcbts_haul_2019-08-01.rds")
 catch = readRDS("survey_data/wcbts_catch_2019-08-01.rds")
@@ -46,7 +46,7 @@ dat = dplyr::left_join(catch[,c("trawl_id","scientific_name","year","subsample_c
 #dat = dat %>% left_join(catch[,c("trawl_id","scientific_name","year","subsample_count",
 #  "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")]) %>%
 
-# filter out species of interest
+# filter out species of interest from joined (catch/haul/bio) dataset
 dat = dplyr::filter(dat, scientific_name == sci_name)
 
 # do spatial conversion
@@ -69,8 +69,8 @@ fitted = dat %>%
   filter(!is.na(length_cm), !is.na(weight_kg)) %>%
   select(common_name, scientific_name, year, trawl_id, lon, lat,
          depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der, temperature_at_gear_c_der,
-         subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2, depth_m,
-         individual_tracking_id, sex, length_cm, weight_kg) %>%
+         subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2, depth_hi_prec_m,
+         individual_tracking_id, sex, length_cm, weight_kg, temperature_at_surface_c_der) %>%
   group_nest(year, sex)  %>%
   mutate(
     model = map(data, ~ lm(log(weight_kg) ~ log(length_cm), data = .x)),
@@ -92,6 +92,11 @@ expanded = dplyr::group_by(dat_pos, trawl_id) %>%
     total_catch_wt_kg = total_catch_wt_kg[1],
     cpue_kg_km2 = cpue_kg_km2[1],
     depth_m = depth_m[1],
+    depth_hi_prec_m = depth_hi_prec_m[1],
+    o2_at_gear_ml_per_l_der = o2_at_gear_ml_per_l_der[1],
+    salinity_at_gear_psu_der = salinity_at_gear_psu_der[1],
+    temperature_at_gear_c_der = temperature_at_gear_c_der[1],
+    temperature_at_surface_c_der = temperature_at_surface_c_der[1],
     subsample_wt_kg = subsample_wt_kg[1],
     juv_weight = sum(weight[which(length_cm < juv_threshold)]),
     adult_weight = sum(weight[which(length_cm > juv_threshold)])) %>%
@@ -107,8 +112,12 @@ expanded$adult_cpue_kg_km2 = expanded$cpue_kg_km2 - expanded$juv_cpue_kg_km2
 
 # add hauls with zero catch back in
 absent = filter(dat, cpue_kg_km2 == 0) %>%
-  select(trawl_id, lon, lat, year, area_swept_ha_der, total_catch_wt_kg, cpue_kg_km2, subsample_wt_kg, depth_m) %>%
+  select(trawl_id, lon, lat, year, area_swept_ha_der, total_catch_wt_kg, cpue_kg_km2, subsample_wt_kg,
+         depth_m, depth_hi_prec_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der,
+         temperature_at_gear_c_der, temperature_at_surface_c_der) %>%
   mutate(juv_weight = 0, adult_weight = 0, ratio = NA, juv_cpue_kg_km2 = 0, adult_cpue_kg_km2 = 0)
 dat_comb = rbind(expanded, absent)
 
-saveRDS(dat_comb, file=paste0(sci_name,"_juv_cpue.rds"))
+#dir.create("data") # create data folder
+# save data
+saveRDS(dat_comb, file=paste0("data/",comm_name,"_expanded.rds"))
