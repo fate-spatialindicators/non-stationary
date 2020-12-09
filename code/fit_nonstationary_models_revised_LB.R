@@ -81,7 +81,21 @@ ad_fit = sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor
 
 dat$resid = dat$adult_cpue_kg_km2 - predict(ad_fit)$est
 
-# save model
-saveRDS(juv_fit, file=paste0(comm_name,"_nonstationary_juv.rds"))
-
 # then you would do the same as the above 3 models for the stationary case....
+# adults and juveniles combined
+total_fit_stationary = sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+                   data = dat, time = "year", spde = spde, family = tweedie(link = "log"))
+
+dat$resid = dat$cpue_kg_km2 - predict(total_fit_stationary)$est 
+
+# juveniles
+juv_fit_stationary = sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+                 data = dat, time = "year", spde = spde, family = tweedie(link = "log"))
+
+dat$resid = dat$juv_cpue_kg_km2 - predict(juv_fit_stationary)$est
+
+# adults
+ad_fit_stationary = sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+                data = dat, time = "year", spde = spde, family = tweedie(link = "log"))
+
+dat$resid = dat$adult_cpue_kg_km2 - predict(ad_fit_stationary)$est
