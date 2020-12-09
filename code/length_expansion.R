@@ -38,7 +38,8 @@ haul$sampling_start_hhmmss = as.numeric(haul$sampling_start_hhmmss)
 dat = dplyr::left_join(catch[,c("trawl_id","scientific_name","year","subsample_count",
   "subsample_wt_kg","total_catch_numbers","total_catch_wt_kg","cpue_kg_km2")], haul) %>%
   dplyr::left_join(filter(bio, !is.na(length_cm))) %>%
-  filter(performance == "Satisfactory")
+  filter(performance == "Satisfactory")  %>%
+  mutate(depth_m = depth_hi_prec_m)
 
 # filter species from list
 #dat = dplyr::filter(dat, scientific_name %in% species$Scientific.Name)
@@ -69,7 +70,7 @@ fitted = dat %>%
   filter(!is.na(length_cm), !is.na(weight_kg)) %>%
   select(common_name, scientific_name, year, trawl_id, lon, lat,
          depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der, temperature_at_gear_c_der,
-         subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2, depth_hi_prec_m,
+         subsample_wt_kg, total_catch_wt_kg, area_swept_ha_der, cpue_kg_km2, 
          individual_tracking_id, sex, length_cm, weight_kg, temperature_at_surface_c_der) %>%
   group_nest(year, sex)  %>%
   mutate(
@@ -92,7 +93,6 @@ expanded = dplyr::group_by(dat_pos, trawl_id) %>%
     total_catch_wt_kg = total_catch_wt_kg[1],
     cpue_kg_km2 = cpue_kg_km2[1],
     depth_m = depth_m[1],
-    depth_hi_prec_m = depth_hi_prec_m[1],
     o2_at_gear_ml_per_l_der = o2_at_gear_ml_per_l_der[1],
     salinity_at_gear_psu_der = salinity_at_gear_psu_der[1],
     temperature_at_gear_c_der = temperature_at_gear_c_der[1],
@@ -115,7 +115,7 @@ expanded$adult_cpue_kg_km2 = expanded$cpue_kg_km2 - expanded$juv_cpue_kg_km2
 # add hauls with zero catch back in
 absent = filter(dat, cpue_kg_km2 == 0) %>%
   select(trawl_id, lon, lat, year, area_swept_ha_der, total_catch_wt_kg, cpue_kg_km2, subsample_wt_kg,
-         depth_m, depth_hi_prec_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der,
+         depth_m, o2_at_gear_ml_per_l_der, salinity_at_gear_psu_der,
          temperature_at_gear_c_der, temperature_at_surface_c_der) %>%
   mutate(juv_weight = 0, adult_weight = 0, ratio = NA, juv_cpue_kg_km2 = 0, adult_cpue_kg_km2 = 0)
 dat_comb = rbind(expanded, absent)
