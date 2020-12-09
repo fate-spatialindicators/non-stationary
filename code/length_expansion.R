@@ -108,6 +108,8 @@ expanded$ratio[indx] = expanded$total_catch_wt_kg[indx]/expanded$subsample_wt_kg
 
 # calculate cpue for juveniles and adults separately
 expanded$juv_cpue_kg_km2 = expanded$ratio * expanded$juv_weight / (expanded$area_swept_ha_der / 100)
+indx2 = which(expanded$juv_cpue_kg_km2 > expanded$cpue_kg_km2)
+expanded$juv_cpue_kg_km2[indx2] = expanded$cpue_kg_km2[indx2]
 expanded$adult_cpue_kg_km2 = expanded$cpue_kg_km2 - expanded$juv_cpue_kg_km2
 
 # add hauls with zero catch back in
