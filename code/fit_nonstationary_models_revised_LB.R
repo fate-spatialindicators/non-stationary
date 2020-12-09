@@ -11,20 +11,33 @@ library(ggsidekick)
 library(dplyr)
 
 # data
-dat = readRDS("data/Darkblotched rockfish_expanded.rds")
+dat = readRDS("data/Darkblotched_rockfish_expanded.rds")
 
 # [index common name]
 
-# make plots of variability in residuals for models of positive catch rates
+# fit non-stationary gamma model to positive CPUE ----
+# make plots of variability in residuals for nonstationary models of positive catch rates (compliment to Fig 1)
+
+# adults and juveniles combined
+dat_pos = dplyr::filter(dat, cpue_kg_km2 > 0)
+dat_pos$depth_scaled = as.numeric(scale(dat_pos$depth_m))
+dat_pos$depth_scaled2 = dat_pos$depth_scaled^2
+spde = make_mesh(dat_pos, c("lon", "lat"), cutoff = 10)
+
+pos_fit = sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+                     data = sub_juv, time = "year", spde = spde, family = Gamma(link = "log"),
+                     epsilon_model = "loglinear")
+dat_pos$resid = dat_pos$cpue_kg_km2 - predict(pos_fit)$est
 
 # juveniles
 sub_juv = dplyr::filter(dat, juv_cpue_kg_km2 > 0)
 sub_juv$depth_scaled = as.numeric(scale(sub_juv$depth_m))
 sub_juv$depth_scaled2 = sub_juv$depth_scaled^2
-spde = make_mesh(sub_juv, c("lon", "lat"), cutoff = 10)
-# check knots with spde$mesh$n
+spde = make_mesh(sub_juv, c("lon", "lat"), cutoff = 10) # check n knots with spde$mesh$n
+
 pos_juv_fit = sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                     data = sub_juv, time = "year", spde = spde, family = Gamma(link = "log"))
+                     data = sub_juv, time = "year", spde = spde, family = Gamma(link = "log"),
+                     epsilon_model = "loglinear")
 sub_juv$resid = sub_juv$juv_cpue_kg_km2 - predict(pos_juv_fit)$est
 # plot of juvenile residual variation over time
 g1 = dplyr::group_by(sub_juv, year) %>%
@@ -42,7 +55,8 @@ sub_ad$depth_scaled = as.numeric(scale(sub_ad$depth_m))
 sub_ad$depth_scaled2 = sub_ad$depth_scaled^2
 spde = make_mesh(sub_ad, c("lon", "lat"), cutoff = 10)
 pos_ad_fit = sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                    data = sub_ad, time = "year", spde = spde, family = Gamma(link = "log"))
+                    data = sub_ad, time = "year", spde = spde, family = Gamma(link = "log"),
+                    epsilon_model = "loglinear")
 sub_ad$resid = sub_ad$adult_cpue_kg_km2 - predict(pos_ad_fit)$est
 # plot of adult residual variation over time
 g2 = dplyr::group_by(sub_ad, year) %>%
@@ -54,7 +68,8 @@ g2 = dplyr::group_by(sub_ad, year) %>%
 g2
 #dev.off()
 
-# fit non-stationary Tweedie model to zero and non-zero catches CPUE
+
+# fit stationary and non-stationary tweedie models to zero and non-zero CPUE ----
 dat$depth_scaled = as.numeric(scale(dat$depth_m))
 dat$depth_scaled2 = dat$depth_scaled^2
 spde = make_mesh(dat, c("lon", "lat"), cutoff = 10)
