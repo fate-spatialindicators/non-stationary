@@ -15,7 +15,7 @@ species = dplyr::rename(species,
 # loop over species to fit models ----
 for(i in 1:nrow(species)){
   
-  comm_name = species$common_name[sp_num]
+  comm_name = species$common_name[i]
   dat = readRDS(paste0("data/", sub(" ", "_", comm_name), "_expanded.rds"))
   
   dat$depth_scaled = as.numeric(scale(dat$depth_m))
