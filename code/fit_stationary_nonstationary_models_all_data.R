@@ -24,28 +24,35 @@ for(i in 1:nrow(species)){
   spde = make_mesh(dat, c("lon", "lat"), cutoff = 10)
 
   # adults and juveniles combined
-  total_fit = sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  total_fit = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                        data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
                        epsilon_model = "loglinear")
+                  )
   # juveniles
-  juv_fit = sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  juv_fit = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                      data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
                      epsilon_model = "loglinear")
+                )
   # adults
-  ad_fit = sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  ad_fit = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                    data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
                    epsilon_model = "loglinear")
+               )
+
+  print(paste0("species ", i, " of ", nrow(species), " halfway complete"))
 
   # same as the above 3 models for the stationary case....
-  total_fit_stationary = sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  total_fit_stationary = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                      data = dat, time = "year", spde = spde, family = tweedie(link = "log"))
-  juv_fit_stationary = sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+                     )
+  juv_fit_stationary = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                    data = dat, time = "year", spde = spde, family = tweedie(link = "log"))
-  ad_fit_stationary = sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+                   )
+  ad_fit_stationary = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                   data = dat, time = "year", spde = spde, family = tweedie(link = "log"))
+                  )
 
   rm(dat)
   if (!dir.exists("output")) {dir.create("output")}
   save.image(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
-  print(paste0("species ", i, " of ", nrow(species)), "completed")
 }
