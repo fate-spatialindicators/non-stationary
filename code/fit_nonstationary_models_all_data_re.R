@@ -26,16 +26,19 @@ for(i in 1:nrow(species)){
   # adults and juveniles combined
   total_fit_stationary_re = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                        data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                       nlminb_loops = 2, newton_steps = 1,
                        epsilon_model = "re")
                   )
   # juveniles
   juv_fit_stationary_re = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                      data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                     nlminb_loops = 2, newton_steps = 1,
                      epsilon_model = "re")
                 )
   # adults
   ad_fit_stationary_re = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                    data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                   nlminb_loops = 2, newton_steps = 1,
                    epsilon_model = "re")
                )
 
@@ -44,14 +47,17 @@ for(i in 1:nrow(species)){
   # same as the above 3 models but using a combination of
   total_fit_re = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                          data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                         nlminb_loops = 2, newton_steps = 1,
                          epsilon_model = "loglinear-re")
   )
   juv_fit_re = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                        data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                       nlminb_loops = 2, newton_steps = 1,
                        epsilon_model = "loglinear-re")
   )
   ad_fit_re = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                       data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                      nlminb_loops = 2, newton_steps = 1,
                       epsilon_model = "loglinear-re")
   )
 
