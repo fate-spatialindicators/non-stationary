@@ -41,58 +41,60 @@ for(i in 1:nrow(species)){
 
   # with loglinear on sigma_epsilon
   m_total_ll = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                         data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                         nlminb_loops = 2, newton_steps = 1,
-                         epsilon_model = "loglinear")
+                          data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                          nlminb_loops = 2, newton_steps = 1,
+                          epsilon_model = "loglinear")
   )
   m_juv_ll = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                       data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                       nlminb_loops = 2, newton_steps = 1,
-                       epsilon_model = "loglinear")
+                        data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                        nlminb_loops = 2, newton_steps = 1,
+                        epsilon_model = "loglinear")
   )
   m_adult_ll = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                      data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                      nlminb_loops = 2, newton_steps = 1,
-                      epsilon_model = "loglinear")
+                          data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                          nlminb_loops = 2, newton_steps = 1,
+                          epsilon_model = "loglinear")
   )
 
   print(paste0("species ", i, " of ", nrow(species), " loglinear complete"))
 
   # with random effects on sigma_epsilon
   m_total_re = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                       data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                       nlminb_loops = 2, newton_steps = 1,
-                       epsilon_model = "re")
-                  )
+                          data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                          nlminb_loops = 2, newton_steps = 1,
+                          epsilon_model = "re")
+  )
   m_juv_re = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                     data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                     nlminb_loops = 2, newton_steps = 1,
-                     epsilon_model = "re")
-                )
+                        data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                        nlminb_loops = 2, newton_steps = 1,
+                        epsilon_model = "re")
+  )
   m_adult_re = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                   data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                   nlminb_loops = 2, newton_steps = 1,
-                   epsilon_model = "re")
-               )
+                          data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+                          nlminb_loops = 2, newton_steps = 1,
+                          epsilon_model = "re")
+  )
 
   print(paste0("species ", i, " of ", nrow(species), " re complete"))
 
-  # with combination of loglinear and random effects on sigma_epsilon
-  m_total_ll_re = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                         data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                         nlminb_loops = 2, newton_steps = 1,
-                         epsilon_model = "loglinear-re")
-  )
-  m_juv_ll_re = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                       data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                       nlminb_loops = 2, newton_steps = 1,
-                       epsilon_model = "loglinear-re")
-  )
-  m_adult_ll_re = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-                      data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
-                      nlminb_loops = 2, newton_steps = 1,
-                      epsilon_model = "loglinear-re")
-  )
+  # # with combination of loglinear and random effects on sigma_epsilon
+  # m_total_ll_re = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  #                        data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+  #                        nlminb_loops = 2, newton_steps = 1,
+  #                        epsilon_model = "loglinear-re")
+  # )
+  # m_juv_ll_re = try(sdmTMB(juv_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  #                      data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+  #                      nlminb_loops = 2, newton_steps = 1,
+  #                      epsilon_model = "loglinear-re")
+  # )
+  # m_adult_ll_re = try(sdmTMB(adult_cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  #                     data = dat, time = "year", spde = spde, family = tweedie(link = "log"),
+  #                     nlminb_loops = 2, newton_steps = 1,
+  #                     epsilon_model = "loglinear-re")
+  # )
+  #
+  # print(paste0("species ", i, " of ", nrow(species), " loglinear/re complete"))
 
   rm(dat, spde)
   if (!dir.exists("output")) {dir.create("output")}
