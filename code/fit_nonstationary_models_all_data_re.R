@@ -102,4 +102,5 @@ for(i in 1:nrow(species)){
   save.image(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 
   try(rm(m_adult_re,m_juv_re,m_total_re,m_adult_ll,m_juv_ll,m_total_ll,m_adult,m_juv,m_total), silent = TRUE)
+
 }
