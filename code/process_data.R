@@ -1,6 +1,7 @@
 library(sdmTMB)
 library(dplyr)
 library(ggplot2)
+library(viridis)
 
 # Species of interest
 species = read.csv("survey_data/species_list_revised.csv")
@@ -9,8 +10,6 @@ species = dplyr::rename(species,
   common_name = common.name,
   scientific_name = scientific.name,
   juv_threshold = max.length.cm)
-
-
 
 for(i in 1:nrow(species)){
 
@@ -42,8 +41,8 @@ for(i in 1:nrow(species)){
   }
   if(class(m_juv_ll)!="try-error") {
     df$aic[4] = AIC(m_juv_ll)
-    df$trend[4] = m_adult_ll$sd_report$value[which(names(m_adult_ll$sd_report$value) == "b_epsilon_logit")]
-    df$trend_se[4] = m_adult_ll$sd_report$sd[which(names(m_adult_ll$sd_report$value) == "b_epsilon_logit")]
+    df$trend[4] = m_juv_ll$sd_report$value[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
+    df$trend_se[4] = m_juv_ll$sd_report$sd[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
   }
 
   if(i==1) {
@@ -59,21 +58,35 @@ pdf("plots/Trend_summaries.pdf")
 
 p1 = dplyr::filter(df_all, loglinear==TRUE, model=="adult", name!="Longspine thornyhead") %>%
   ggplot(aes(name,trend)) +
-  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se)) +
-  xlab("Species") + ylab("Trend (+/- 2SE)") +
+  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),col="darkblue",size=0.8) +
+  xlab("Species") + ylab("Trend in adult spatiotemporal sd (+/- 2SE)") +
   geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
   coord_flip() +
-  ggtitle("Trends in adult spatiotemporal sd")
+  theme_bw()
 p1
 
 p2 = dplyr::filter(df_all, loglinear==TRUE, model!="adult", name!="Longspine thornyhead") %>%
   ggplot(aes(name,trend)) +
-  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se)) +
-  xlab("Species") + ylab("Trend (+/- 2SE)") +
+  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),col="darkblue",size=0.8) +
+  xlab("Species") + ylab("Trend in juvenile spatiotemporal sd (+/- 2SE)") +
   geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
   coord_flip() +
-  ggtitle("Trends in juvenile spatiotemporal sd")
+  theme_bw()
 p2
+
+# put both adults and juveniles on the same figure
+p3 = dplyr::filter(df_all, loglinear==TRUE, name!="Longspine thornyhead") %>%
+  dplyr::rename(Data=model) %>%
+  ggplot(aes(name,trend,group=Data,col=Data)) +
+  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),size=0.8,alpha=0.8,
+    position = position_dodge(width = 0.9)) +
+  xlab("Species") +
+  ylab("Trend in juvenile spatiotemporal sd (+/- 2SE)") +
+  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
+  coord_flip() +
+  theme_bw() +
+  scale_color_viridis(discrete=TRUE,end=0.8)
+p3
 
 dev.off()
 
