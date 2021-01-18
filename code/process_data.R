@@ -63,7 +63,7 @@ p1 = dplyr::filter(df_all, loglinear==TRUE, model=="adult", name!="Longspine tho
   geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
   coord_flip() +
   theme_bw()
-p1
+#p1
 
 p2 = dplyr::filter(df_all, loglinear==TRUE, model!="adult", name!="Longspine thornyhead") %>%
   ggplot(aes(name,trend)) +
@@ -72,7 +72,7 @@ p2 = dplyr::filter(df_all, loglinear==TRUE, model!="adult", name!="Longspine tho
   geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
   coord_flip() +
   theme_bw()
-p2
+#p2
 
 # put both adults and juveniles on the same figure
 p3 = dplyr::filter(df_all, loglinear==TRUE, name!="Longspine thornyhead") %>%
