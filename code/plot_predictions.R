@@ -1,7 +1,6 @@
 library(sdmTMB)
 library(dplyr)
 library(ggplot2)
-library(viridis)
 
 # Species of interest
 species = read.csv("survey_data/species_list_revised.csv")
@@ -45,40 +44,34 @@ for(i in 1:nrow(species)){
   if(est_index==TRUE) {
     # calculate the biomass trend for the adult models
     null_predictions[[i]] <- predict(m_adult, newdata = pred_grid, return_tmb_object = TRUE)
-    null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = TRUE)
+    #null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = TRUE)
 
     ll_predictions[[i]] <- predict(m_adult_ll, newdata = pred_grid, return_tmb_object = TRUE)
-    ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = TRUE)
+    #ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = TRUE)
   }
 }
-saveRDS(null_predictions,"output/null_predictions.rds")
-saveRDS(ll_predictions,"output/ll_predictions.rds")
-saveRDS(null_index,"output/null_index.rds")
-saveRDS(ll_index,"output/ll_index.rds")
+#saveRDS(null_predictions,"output/null_predictions.rds")
+#saveRDS(ll_predictions,"output/ll_predictions.rds")
+#saveRDS(null_index,"output/null_index.rds")
+#saveRDS(ll_index,"output/ll_index.rds")
 
-null_index = readRDS("output/null_index.rds")
-ll_index = readRDS("output/ll_index.rds")
+null_predictions = readRDS("output/null_predictions.rds")
+ll_predictions = readRDS("output/ll_predictions.rds")
 
-null_df = bind_rows(null_index[-8])
-null_df$species = c(t(replicate(species$common_name[-c(8)],n=length(2003:2018))))
+# look at predictions for splitnose rockfish, which are a case where there's a difference in biomass index
+null_pred = null_predictions[[13]]$data
+ll_pred = ll_predictions[[13]]$data
+ll_pred$null_est = null_pred$est
+ll_pred$ll_est = ll_pred$est
 
-null_df$model = "Constant"
-ll_df = bind_rows(ll_index[-8])
-ll_df$species = c(t(replicate(species$common_name[-c(8)],n=length(2003:2018))))
-ll_df$model = "Log-linear"
-joined_df = rbind(ll_df, null_df)
+p1 = ggplot(ll_pred, aes(null_est, ll_est)) +
+  geom_point(col="darkblue", alpha = 0.3) +
+  geom_abline(aes(intercept=0,slope=1),col="grey",alpha=0.6) +
+  facet_wrap(~year) +
+  xlab("Log density, null model") +
+  ylab("Log density, Log-linear model") +
+  theme_bw()
 
-pdf("plots/adult_biomass_index.pdf")
-ggplot(joined_df, aes(year, log_est, color=model, group=model)) +
-  geom_line() +
-  geom_pointrange(aes(ymin=log_est-2*se, ymax = log_est+2*se), alpha=0.7,
-    position = position_dodge(width = 0.5)) +
-  facet_wrap(~ species, scale="free_y") +
-  theme_bw() +
-  scale_color_viridis(discrete=TRUE,end=0.8) +
-  ylab("Log est (+/- 2SE)")
+pdf("plots/null_vs_ll_estimates_splitnose_rockfish.pdf")
+p1
 dev.off()
-
-
-
-
