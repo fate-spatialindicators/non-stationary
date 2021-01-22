@@ -22,8 +22,8 @@ for(i in 1:nrow(species)){
   load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 
   df = data.frame(name = comm_name,
-    model = c("adult", "adult","juvenile","juvenile","total","total"),
-    loglinear = c(FALSE,TRUE,FALSE,TRUE,FALSE,TRUE))
+    model = c("adult", "adult","juvenile","juvenile"),
+    loglinear = c(FALSE,TRUE,FALSE,TRUE))
   df$aic = NA
   df$trend = NA
   df$trend_se = NA
@@ -43,15 +43,6 @@ for(i in 1:nrow(species)){
     df$aic[4] = AIC(m_juv_ll)
     df$trend[4] = m_juv_ll$sd_report$value[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
     df$trend_se[4] = m_juv_ll$sd_report$sd[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
-  }
-
-  if(class(m_juv)!="try-error") {
-    df$aic[5] = AIC(m_total)
-  }
-  if(class(m_total_ll)!="try-error") {
-    df$aic[6] = AIC(m_total_ll)
-    df$trend[6] = m_total_ll$sd_report$value[which(names(m_total_ll$sd_report$value) == "b_epsilon_logit")]
-    df$trend_se[6] = m_total_ll$sd_report$sd[which(names(m_total_ll$sd_report$value) == "b_epsilon_logit")]
   }
 
   if(i==1) {
@@ -106,3 +97,36 @@ aic_summary = dplyr::group_by(df_all, name, model) %>%
   dplyr::arrange(model, name) %>%
   as.data.frame()
 write.csv(aic_summary, "output/aic_summary.csv")
+
+
+
+# Species of interest
+species = read.csv("survey_data/species_list.csv")
+names(species) = tolower(names(species))
+species = dplyr::rename(species,
+                        common_name = common.name,
+                        scientific_name = scientific.name)
+species$coef = NA
+species$se = NA
+species_df = species
+
+for(i in 1:nrow(species_df)){
+  comm_name = species_df$common_name[i]
+  load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
+  indx = grep("b_epsilon_logit", names(ad_fit_ll$sd_report$value))
+  species_df$coef[i] = ad_fit_ll$sd_report$value[indx]
+  species_df$se[i] = ad_fit_ll$sd_report$sd[indx]
+}
+
+p4 = dplyr::filter(species_df,
+              species %in% c("Greenspotted rockfish","Longspine thornyhead","Deepsea sole")==FALSE) %>%
+  ggplot(aes(species,coef)) +
+  geom_pointrange(aes(ymin=coef-2*se, ymax=coef+2*se),size=0.8,alpha=0.8,
+                  position = position_dodge(width = 0.9)) +
+  xlab("Species") +
+  ylab("Trend in spatiotemporal sd (+/- 2SE)") +
+  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
+  coord_flip() +
+  theme_bw() +
+  scale_color_viridis(discrete=TRUE,end=0.8)
+

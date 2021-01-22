@@ -11,7 +11,7 @@ species = dplyr::rename(species,
                         common_name = common.name,
                         scientific_name = scientific.name)
 
-dat = readRDS("all_data.rds")
+dat = readRDS("survey_data/all_data.rds")
 # loop over species to fit models ----
 for(i in 1:nrow(species)){
 
