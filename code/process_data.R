@@ -22,8 +22,8 @@ for(i in 1:nrow(species)){
   load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 
   df = data.frame(name = comm_name,
-    model = c("adult", "adult","juvenile","juvenile"),
-    loglinear = c(FALSE,TRUE,FALSE,TRUE))
+    model = c("adult", "adult","juvenile","juvenile","total","total"),
+    loglinear = c(FALSE,TRUE,FALSE,TRUE,FALSE,TRUE))
   df$aic = NA
   df$trend = NA
   df$trend_se = NA
@@ -43,6 +43,15 @@ for(i in 1:nrow(species)){
     df$aic[4] = AIC(m_juv_ll)
     df$trend[4] = m_juv_ll$sd_report$value[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
     df$trend_se[4] = m_juv_ll$sd_report$sd[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
+  }
+
+  if(class(m_juv)!="try-error") {
+    df$aic[5] = AIC(m_total)
+  }
+  if(class(m_total_ll)!="try-error") {
+    df$aic[6] = AIC(m_total_ll)
+    df$trend[6] = m_total_ll$sd_report$value[which(names(m_total_ll$sd_report$value) == "b_epsilon_logit")]
+    df$trend_se[6] = m_total_ll$sd_report$sd[which(names(m_total_ll$sd_report$value) == "b_epsilon_logit")]
   }
 
   if(i==1) {
