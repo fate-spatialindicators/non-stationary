@@ -1,0 +1,35 @@
+"","name","model","min_aic","diff_aic"
+"1","bocaccio","adult",3181.23164156594,71.1470349983865
+"2","dogfish, North Pacific","adult",7756.84930354893,1.27294078277191
+"3","flounder, arrowtooth","adult",4346.18594906974,1.9207965847163
+"4","lingcod","adult",6822.77453297386,0
+"5","Pacific grenadiers","adult",2020.47094724864,2.000000036438
+"6","Pacific ocean perch","adult",2710.62136132568,1.99999999871943
+"7","redstripe","adult",1389.45223680518,1.63262589895021
+"8","redstripe","adult",1389.45223680518,2063.61048128531
+"9","rockfish, aurora","adult",2936.79863521103,1.091600993881
+"10","rockfish, canary","adult",3995.46480979038,2.0000000455766
+"11","rockfish, chilipepper","adult",3904.97425355705,0
+"12","rockfish, darkblotched","adult",4493.95070395742,0
+"13","rockfish, greenspotted","adult",2719.22860372925,0.23904901255446
+"14","rockfish, greenstriped","adult",4899.21171467287,0
+"15","rockfish, melanostomus","adult",2054.20860474855,2.0001450770651
+"16","rockfish, redbanded","adult",2983.96129382339,1.99999988183845
+"17","rockfish, rosethorn","adult",3480.97066738583,0
+"18","rockfish, sharpchin","adult",2847.41914717732,1.66576787357917
+"19","rockfish, shortbelly","adult",3795.80974906627,0
+"20","rockfish, splitnose","adult",4057.5341295486,1.82784316886682
+"21","rockfish, stripetail","adult",4787.81400150343,1.26351284488192
+"22","rockfish, yellowtail","adult",3139.20441330478,0
+"23","sablefish","adult",8031.15581795957,0
+"24","sanddab, Pacific","adult",2917.07145557214,1.83451668435009
+"25","skate, longnose","adult",7894.41750184879,0
+"26","sole, deepsea","adult",2615.6667256143,1.99999992467929
+"27","sole, Dover","adult",5156.79437385601,0
+"28","sole, English","adult",4779.25179523438,0
+"29","sole, flathead","adult",2435.29649259563,1.45057128023473
+"30","sole, petrale","adult",4701.44788648928,14.0811727462642
+"31","sole, rex","adult",4395.03330415885,1.58207258852053
+"32","thornyhead, longspine","adult",2096.98329641421,2.00000004796311
+"33","thornyhead, shortspine ","adult",4007.24378740969,0
+"34","turbot, curlfin","adult",3050.87067574867,1.50018003092555
