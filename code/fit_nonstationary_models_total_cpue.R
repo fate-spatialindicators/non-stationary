@@ -61,7 +61,7 @@ for(i in 1:nrow(species)){
   ad_fit_ll_temp$tmb_data = NULL
   ad_fit_ll_temp$spde = NULL
   if (!dir.exists("output")) {dir.create("output")}
-  save.image(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
+  save(ad_fit, ad_fit_ll, ad_fit_ll_temp,file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 }
 
 # fit presence - absence models
@@ -110,7 +110,7 @@ for(i in 1:nrow(species)){
   ad_fit_ll_temp$tmb_data = NULL
   ad_fit_ll_temp$spde = NULL
   if (!dir.exists("output")) {dir.create("output")}
-  save.image(file=paste0("output/", sub(" ", "_", comm_name),"_presence_models.RData"))
+  save(ad_fit, ad_fit_ll, ad_fit_ll_temp,file=paste0("output/", sub(" ", "_", comm_name),"_presence_models.RData"))
 }
 
 
@@ -160,5 +160,5 @@ for(i in 1:nrow(species)){
   ad_fit_ll_temp$tmb_data = NULL
   ad_fit_ll_temp$spde = NULL
   if (!dir.exists("output")) {dir.create("output")}
-  save.image(file=paste0("output/", sub(" ", "_", comm_name),"_positive_models.RData"))
+  save(ad_fit, ad_fit_ll, ad_fit_ll_temp,file=paste0("output/", sub(" ", "_", comm_name),"_positive_models.RData"))
 }

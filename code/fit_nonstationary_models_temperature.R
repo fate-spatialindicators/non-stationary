@@ -34,17 +34,24 @@ fit = try(sdmTMB(temperature_at_gear_c_der ~ 0 + depth_scaled + depth_scaled2 + 
 
 # scale time
 sub$time = sub$year - min(sub$year) + 1
-ad_fit_ll = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+fit_ll = try(sdmTMB(temperature_at_gear_c_der ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                        data = sub, time = "year", spde = spde, epsilon_predictor = "time")
 )
 
+temp = dplyr::group_by(sub, year) %>%
+  dplyr::summarize(mean_temp = mean(temperature_at_gear_c_der,na.rm=T))
+temp$mean_temp = scale(temp$mean_temp)
+sub = dplyr::left_join(sub, temp)
+fit_ll_temp = try(sdmTMB(temperature_at_gear_c_der ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+                    data = sub, time = "mean_temp", spde = spde, epsilon_predictor = "time")
+)
 # drop out high memory objects
-ad_fit$data = NULL
-ad_fit$tmb_data = NULL
-ad_fit$spde = NULL
-ad_fit_ll$data = NULL
-ad_fit_ll$tmb_data = NULL
-ad_fit_ll$spde = NULL
+fit$data = NULL
+fit$tmb_data = NULL
+fit$spde = NULL
+fit_ll$data = NULL
+fit_ll$tmb_data = NULL
+fit_ll$spde = NULL
 
 if (!dir.exists("output")) {dir.create("output")}
 save.image(file=paste0("output/temp_all_models.RData"))
