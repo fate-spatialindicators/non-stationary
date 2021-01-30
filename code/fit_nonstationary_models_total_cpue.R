@@ -144,7 +144,7 @@ for(i in 1:nrow(species)){
     dplyr::summarize(mean_temp = mean(temperature_at_gear_c_der,na.rm=T))
   temp$mean_temp = scale(temp$mean_temp)
   sub = dplyr::left_join(sub, temp)
-  ad_fit_ll_temp = try(sdmTMB(presence ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  ad_fit_ll_temp = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
                               data = sub, time = "year", spde = spde,
                               family = lognormal(link = "log"), epsilon_predictor = "mean_temp")
   )
