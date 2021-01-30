@@ -7,7 +7,7 @@
 library(sdmTMB)
 library(dplyr)
 
-n_cutoff = 15 # generates ~ 600 knots
+n_cutoff = 15 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
 # Species of interest
 species = read.csv("survey_data/species_list.csv")
 names(species) = tolower(names(species))
