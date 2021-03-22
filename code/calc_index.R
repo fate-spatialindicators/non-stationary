@@ -61,12 +61,12 @@ saveRDS(ll_index,"output/ll_index.rds")
 null_index = readRDS("output/null_index.rds")
 ll_index = readRDS("output/ll_index.rds")
 
-null_df = bind_rows(null_index[-8])
-null_df$species = c(t(replicate(species$common_name[-c(8)],n=length(2003:2018))))
+null_df = bind_rows(null_index)
+null_df$species = c(t(replicate(species$common_name[1:12],n=length(2003:2018))))
 
 null_df$model = "Constant"
-ll_df = bind_rows(ll_index[-8])
-ll_df$species = c(t(replicate(species$common_name[-c(8)],n=length(2003:2018))))
+ll_df = bind_rows(ll_index)
+ll_df$species = c(t(replicate(species$common_name[1:12],n=length(2003:2018))))
 ll_df$model = "Log-linear"
 joined_df = rbind(ll_df, null_df)
 
