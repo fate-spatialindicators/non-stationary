@@ -7,7 +7,7 @@
 library(sdmTMB)
 library(dplyr)
 
-n_cutoff = 15 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
+n_cutoff = 20 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
 # Species of interest
 species = read.csv("survey_data/species_list.csv")
 names(species) = tolower(names(species))
@@ -22,20 +22,20 @@ for(i in 1:nrow(species)){
   comm_name = species$common_name[i]
 
   sub = dplyr::filter(dat, scientific_name == species$scientific_name[i])
-
+  sub$year = as.factor(sub$year)
   sub$depth_scaled = as.numeric(scale(sub$depth_m))
   sub$depth_scaled2 = sub$depth_scaled^2
 
   spde = make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
 
   # total cpue
-  ad_fit = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  ad_fit = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
                    data = sub, time = "year", spde = spde, family = tweedie(link = "log"))
                )
 
   # scale time
-  sub$time = sub$year - min(sub$year) + 1
-  ad_fit_ll = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  sub$time = as.numeric(sub$year) - min(as.numeric(sub$year)) + 1
+  ad_fit_ll = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
                       data = sub, time = "year", spde = spde,
                       family = tweedie(link = "log"), epsilon_predictor = "time")
   )
@@ -45,7 +45,7 @@ for(i in 1:nrow(species)){
     dplyr::summarize(mean_temp = mean(temperature_at_gear_c_der,na.rm=T))
   temp$mean_temp = scale(temp$mean_temp)
   sub = dplyr::left_join(sub, temp)
-  ad_fit_ll_temp = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
+  ad_fit_ll_temp = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
                          data = sub, time = "year", spde = spde,
                          family = tweedie(link = "log"), epsilon_predictor = "mean_temp")
   )
