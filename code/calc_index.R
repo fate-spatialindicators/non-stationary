@@ -62,25 +62,49 @@ null_index = readRDS("output/null_index.rds")
 ll_index = readRDS("output/ll_index.rds")
 
 null_df = bind_rows(null_index)
-null_df$species = c(t(replicate(species$common_name[1:12],n=length(2003:2018))))
+null_df$species = c(t(replicate(species$common_name,n=length(2003:2018))))
 
 null_df$model = "Constant"
 ll_df = bind_rows(ll_index)
-ll_df$species = c(t(replicate(species$common_name[1:12],n=length(2003:2018))))
+ll_df$species = c(t(replicate(species$common_name,n=length(2003:2018))))
 ll_df$model = "Log-linear"
 joined_df = rbind(ll_df, null_df)
 
-pdf("plots/adult_biomass_index.pdf")
-ggplot(joined_df, aes(year, log_est, color=model, group=model)) +
+
+pdf("plots/biomass_index_log.pdf")
+ggplot(joined_df, aes(year, log_est, fill=model, col=model,group=model)) +
   geom_line() +
-  geom_pointrange(aes(ymin=log_est-2*se, ymax = log_est+2*se), alpha=0.7,
+  geom_ribbon(aes(ymin=log_est-se, ymax = log_est+se), alpha=0.4,
+                  position = position_dodge(width = 0.5)) +
+  facet_wrap(~ species, scale="free_y") +
+  theme_bw() +
+  scale_color_viridis(discrete=TRUE,end=0.8) +
+  ylab("Log estimate (+/- 1SE)")
+dev.off()
+
+joined_df$model = as.factor(joined_df$model)
+pdf("plots/biomass_index_normal.pdf")
+ggplot(joined_df, aes(year, exp(log_est), fill=model,group=model,col=model)) +
+  geom_line() +
+  geom_ribbon(aes(ymin=exp(log_est-se), ymax = exp(log_est+se)), alpha=0.4,
     position = position_dodge(width = 0.5)) +
   facet_wrap(~ species, scale="free_y") +
   theme_bw() +
   scale_color_viridis(discrete=TRUE,end=0.8) +
-  ylab("Log est (+/- 2SE)")
+  ylab("Estimate (+/- 1SE)")
 dev.off()
 
+df = null_df[,c("year","est","species")]
+df$est_ll = ll_df$est
+df$ratio = df$est_ll / df$est
 
+pdf("plots/ratio.pdf")
+ggplot(df, aes(year, ratio,group=species)) +
+  geom_line() +
+  facet_wrap(~ species, scale="free_y") +
+  theme_bw() +
+  ylab("Ratio log-linear estimate / null estimated biomass") +
+  scale_color_viridis(discrete=TRUE,end=0.8)
+dev.off()
 
 

@@ -16,8 +16,30 @@ species = dplyr::rename(species,
                         scientific_name = scientific.name)
 
 dat = readRDS("survey_data/all_data.rds")
+
+
+grid = readRDS("data/wc_grid.rds")
+grid = dplyr::rename(grid, lon = X, lat = Y)
+grid = dplyr::mutate(grid,
+                     depth_scaled = as.numeric(scale(-depth)),
+                     depth_scaled2 = depth_scaled^2) %>%
+  dplyr::select(-log_depth_scaled,
+                -log_depth_scaled2)
+
+grid$cell = seq(1,nrow(grid))
+pred_grid = expand.grid(cell = grid$cell, year = 2003:2018)
+pred_grid = dplyr::left_join(pred_grid, grid)
+pred_grid$year = as.factor(pred_grid$year)
+
+null_index = list()
+null_predictions = list()
+ll_predictions = list()
+ll_index = list()
+ll_temp_predictions = list()
+ll_temp_index = list()
+
 # loop over species to fit models ----
-for(i in 1:nrow(species)){
+for(i in 31:nrow(species)){
 
   comm_name = species$common_name[i]
 
@@ -50,6 +72,19 @@ for(i in 1:nrow(species)){
                          family = tweedie(link = "log"), epsilon_predictor = "mean_temp")
   )
 
+  if(class(ad_fit)!="try-error") {
+    # calculate the biomass trend for the adult models
+    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+    null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = FALSE)
+  }
+  if(class(ad_fit_ll)!="try-error") {
+    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+    ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = FALSE)
+  }
+  if(class(ad_fit_ll_temp)!="try-error") {
+    ll_temp_predictions[[i]] <- predict(ad_fit_ll_temp, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+    ll_temp_index[[i]] <- get_index(ll_temp_predictions[[i]], bias_correct = FALSE)
+  }
   # drop out high memory objects
   ad_fit$data = NULL
   ad_fit$tmb_data = NULL
@@ -63,6 +98,8 @@ for(i in 1:nrow(species)){
   if (!dir.exists("output")) {dir.create("output")}
   save(ad_fit, ad_fit_ll, ad_fit_ll_temp,file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 }
+
+save(null_index, null_predictions, ll_index, ll_predictions, ll_temp_index, ll_temp_predictions, file="indices_totalCPUE.Rdata")
 
 # fit presence - absence models
 for(i in 1:nrow(species)){

@@ -3,3 +3,4 @@
 *.RData
 .Ruserdata
 survey_data/*.rds
+.DS_Store
