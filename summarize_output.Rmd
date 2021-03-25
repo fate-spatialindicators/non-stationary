@@ -1,0 +1,225 @@
+---
+title: "summarize output"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(sdmTMB)
+library(ggplot2)
+library(dplyr)
+library(viridis)
+```
+
+## Total CPUE 
+
+The table below summarizes trends and AIC values for 3 models: a null model (only including depth and depth^2, plus year as a factor), a model with a log-linear trend on epsilon, and a model with a trend on epsilon related to mean temperature. There is some support for the temporal trend model for a number of species, but the only case where the temporal model is supported by AIC (>> 2) is Aurora rockfish. The temporal coefficients are shown in Fig. \ref{fig:trend-cpue}
+
+```{r cpue}
+# Species of interest
+species = read.csv("survey_data/species_list.csv")
+names(species) = tolower(names(species))
+species = dplyr::rename(species,
+                        common_name = common.name,
+                        scientific_name = scientific.name)
+species$year_trend = NA
+species$year_se = NA
+species$temp_trend = NA
+species$temp_se = NA
+species$aic_null = NA
+species$aic_trend = NA
+species$aic_trend_temp = NA
+species_df = species
+
+for(i in 1:nrow(species_df)){
+  comm_name = species_df$common_name[i]
+  load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
+  indx = which(names(ad_fit_ll$sd_report$value)=="b_epsilon")[1]
+  species_df$year_trend[i] = ad_fit_ll$sd_report$value[indx]
+  species_df$year_se[i] = ad_fit_ll$sd_report$sd[indx]
+  indx = which(names(ad_fit_ll_temp$sd_report$value)=="b_epsilon")[1]
+  species_df$temp_trend[i] = ad_fit_ll_temp$sd_report$value[indx]
+  species_df$temp_se[i] = ad_fit_ll_temp$sd_report$sd[indx]
+  species_df$aic_null[i] = AIC(ad_fit)
+  species_df$aic_trend[i] = AIC(ad_fit_ll)
+  species_df$aic_trend_temp[i] = AIC(ad_fit_ll_temp)
+  
+  min_aic <- min(species_df[i,c("aic_null","aic_trend","aic_trend_temp")])
+  species_df[i,c("aic_null","aic_trend","aic_trend_temp")] <- species_df[i,c("aic_null","aic_trend","aic_trend_temp")] - min_aic
+}
+
+knitr::kable(dplyr::select(species_df,-common_name, -scientific_name,-priority.to.include), digits=2)
+```
+
+```{r fig1, fig.cap="Temporal trend in epsilon, for models with total CPUE as a response \\label{fig:trend-cpue}", fig.pos="placeHere"}
+p <- species_df %>%
+  ggplot(aes(species,year_trend)) +
+  geom_pointrange(aes(ymin=year_trend-2*year_se, ymax=year_trend+2*year_se),size=0.8,alpha=0.8,
+                  position = position_dodge(width = 0.9)) +
+  xlab("Species") +
+  ylab("Temporal trend in spatiotemporal sd (+/- 2SE)") +
+  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
+  ylim(-0.15,0.15) + 
+  coord_flip() +
+  theme_bw() +
+  scale_color_viridis(discrete=TRUE,end=0.8)
+p
+```
+
+## Presence-absence 
+
+We ran the same models for presence-absence of each species. 
+
+There is some support for the temporal trend model for a few species (Shortbelly rockfish), but overall support across species seems not strong for the model with epsilon ~ time or model with epsilon ~ temperature. The temporal coefficients are shown in Fig. \ref{fig:trend-presence}
+
+```{r presence}
+# Species of interest
+species = read.csv("survey_data/species_list.csv")
+names(species) = tolower(names(species))
+species = dplyr::rename(species,
+                        common_name = common.name,
+                        scientific_name = scientific.name)
+species$year_trend = NA
+species$year_se = NA
+species$temp_trend = NA
+species$temp_se = NA
+species$aic_null = NA
+species$aic_trend = NA
+species$aic_trend_temp = NA
+species_df = species
+
+for(i in 1:nrow(species_df)){
+  comm_name = species_df$common_name[i]
+  load(file=paste0("output/", sub(" ", "_", comm_name),"_presence_models.RData"))
+  indx = which(names(ad_fit_ll$sd_report$value)=="b_epsilon")[1]
+  species_df$year_trend[i] = ad_fit_ll$sd_report$value[indx]
+  species_df$year_se[i] = ad_fit_ll$sd_report$sd[indx]
+  indx = which(names(ad_fit_ll_temp$sd_report$value)=="b_epsilon")[1]
+  species_df$temp_trend[i] = ad_fit_ll_temp$sd_report$value[indx]
+  species_df$temp_se[i] = ad_fit_ll_temp$sd_report$sd[indx]
+  species_df$aic_null[i] = AIC(ad_fit)
+  species_df$aic_trend[i] = AIC(ad_fit_ll)
+  species_df$aic_trend_temp[i] = AIC(ad_fit_ll_temp)
+  
+  min_aic <- min(species_df[i,c("aic_null","aic_trend","aic_trend_temp")])
+  species_df[i,c("aic_null","aic_trend","aic_trend_temp")] <- species_df[i,c("aic_null","aic_trend","aic_trend_temp")] - min_aic
+}
+
+knitr::kable(dplyr::select(species_df,-common_name, -scientific_name,-priority.to.include), digits=2)
+```
+
+```{r fig2, fig.cap="Temporal trend in epsilon, for models with presence absence as a response \\label{fig:trend-presence}", fig.pos="placeHere"}
+p <- species_df %>%
+  ggplot(aes(species,year_trend)) +
+  geom_pointrange(aes(ymin=year_trend-2*year_se, ymax=year_trend+2*year_se),size=0.8,alpha=0.8,
+                  position = position_dodge(width = 0.9)) +
+  xlab("Species") +
+  ylab("Temporal trend in spatiotemporal sd (+/- 2SE)") +
+  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
+  ylim(-0.4,0.4) + 
+  coord_flip() +
+  theme_bw() +
+  scale_color_viridis(discrete=TRUE,end=0.8)
+p
+```
+
+
+## Positive models 
+
+We ran the same models for positive catch rates of each species. 
+
+There is some support for the temporal trend model for a few species (Shortbelly rockfish), but overall support across species seems not strong for the model with epsilon ~ time or model with epsilon ~ temperature. The temporal coefficients are shown in Fig. \ref{fig:trend-positive}
+
+```{r positive}
+# Species of interest
+species = read.csv("survey_data/species_list.csv")
+names(species) = tolower(names(species))
+species = dplyr::rename(species,
+                        common_name = common.name,
+                        scientific_name = scientific.name)
+species$year_trend = NA
+species$year_se = NA
+species$temp_trend = NA
+species$temp_se = NA
+species$aic_null = NA
+species$aic_trend = NA
+species$aic_trend_temp = NA
+species_df = species
+
+for(i in 1:nrow(species_df)){
+  comm_name = species_df$common_name[i]
+  load(file=paste0("output/", sub(" ", "_", comm_name),"_positive_models.RData"))
+  indx = which(names(ad_fit_ll$sd_report$value)=="b_epsilon")[1]
+  species_df$year_trend[i] = ad_fit_ll$sd_report$value[indx]
+  species_df$year_se[i] = ad_fit_ll$sd_report$sd[indx]
+  indx = which(names(ad_fit_ll_temp$sd_report$value)=="b_epsilon")[1]
+  species_df$temp_trend[i] = ad_fit_ll_temp$sd_report$value[indx]
+  species_df$temp_se[i] = ad_fit_ll_temp$sd_report$sd[indx]
+  species_df$aic_null[i] = AIC(ad_fit)
+  species_df$aic_trend[i] = AIC(ad_fit_ll)
+  species_df$aic_trend_temp[i] = AIC(ad_fit_ll_temp)
+  
+  min_aic <- min(species_df[i,c("aic_null","aic_trend","aic_trend_temp")])
+  species_df[i,c("aic_null","aic_trend","aic_trend_temp")] <- species_df[i,c("aic_null","aic_trend","aic_trend_temp")] - min_aic
+}
+
+knitr::kable(dplyr::select(species_df,-common_name, -scientific_name,-priority.to.include), digits=2)
+```
+
+```{r fig3, fig.cap="Temporal trend in epsilon, for models with positive catch rate as a response \\label{fig:trend-positive}", fig.pos="placeHere"}
+p <- species_df %>%
+  ggplot(aes(species,year_trend)) +
+  geom_pointrange(aes(ymin=year_trend-2*year_se, ymax=year_trend+2*year_se),size=0.8,alpha=0.8,
+                  position = position_dodge(width = 0.9)) +
+  xlab("Species") +
+  ylab("Temporal trend in spatiotemporal sd (+/- 2SE)") +
+  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
+  ylim(-0.4,0.4) + 
+  coord_flip() +
+  theme_bw() +
+  scale_color_viridis(discrete=TRUE,end=0.8)
+p
+```
+
+
+## Bottom temperature
+
+We can run the same 3 models used above on the temperature data, with a slight modification in also including a quadratic function of the day of the year (to account for the 2 passes, and duration of the surveys). In this case, there seems to be pretty strong support for modeling epsilon ~ mean temperature.
+
+```{r bottomtemp}
+load(file=paste0("output/temp_all_models.RData"))
+
+df = data.frame("model" = c("null","log-linear","mean temp"),
+                "AIC"=c(AIC(fit),AIC(fit_ll),AIC(fit_ll_temp)))
+df$AIC = df$AIC - min(df$AIC)
+knitr::kable(df, digits=2)
+```
+
+Digging into the model a bit more, the coefficient is positive (interpretation: years with warmer bottom temperature are also more variable).
+
+```{r}
+indx = which(names(fit_ll_temp$sd_report$value)=="b_epsilon")[1]
+print(paste("b_epsilon=",round(fit_ll_temp$sd_report$value[indx],2), " SE = ",
+            round(fit_ll_temp$sd_report$sd[indx],2)))
+```
+
+Fig. \ref{fig:data-temp} shows the deviations by year
+
+```{r fig4, fig.cap="Scaled mean bottom temperature in the WCBTS data, by year \\label{fig:data-temp}", fig.pos="placeHere"}
+sub %>% 
+  dplyr::group_by(year) %>% 
+  summarize(mean_temp = mean_temp[1]) %>% 
+  ggplot(aes(year,mean_temp)) + geom_point(size=3) + 
+  xlab("Year") + ylab("Standardized mean temperature") + 
+  theme_bw()
+```
+We can also look at the time series of estimated epsilon values by year,
+
+```{r}
+indx = which(names(fit_ll_temp$sd_report$value) == "sigma_E")
+df = data.frame("Year"=2003:2018,
+                sigma = fit_ll_temp$sd_report$value[indx],
+                sigma_sd = fit_ll_temp$sd_report$sd[indx])
+```
+
+

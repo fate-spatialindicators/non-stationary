@@ -70,33 +70,36 @@ ll_df$species = c(t(replicate(species$common_name,n=length(2003:2018))))
 ll_df$model = "Log-linear"
 joined_df = rbind(ll_df, null_df)
 
-
+joined_df = dplyr::filter(joined_df, species != "")
 pdf("plots/biomass_index_log.pdf")
 ggplot(joined_df, aes(year, log_est, fill=model, col=model,group=model)) +
   geom_line() +
-  geom_ribbon(aes(ymin=log_est-se, ymax = log_est+se), alpha=0.4,
-                  position = position_dodge(width = 0.5)) +
+  geom_ribbon(aes(ymin=log_est-se, ymax = log_est+se), alpha=0.4) +
   facet_wrap(~ species, scale="free_y") +
   theme_bw() +
-  scale_color_viridis(discrete=TRUE,end=0.8) +
-  ylab("Log estimate (+/- 1SE)")
+  ylab("Log estimate (+/- 1SE)") +
+  theme(strip.background =element_rect(fill="white")) +
+  theme(strip.text.x = element_text(size = 4),
+        axis.text.x = element_text(size=5, angle = 90))
 dev.off()
 
 joined_df$model = as.factor(joined_df$model)
 pdf("plots/biomass_index_normal.pdf")
 ggplot(joined_df, aes(year, exp(log_est), fill=model,group=model,col=model)) +
   geom_line() +
-  geom_ribbon(aes(ymin=exp(log_est-se), ymax = exp(log_est+se)), alpha=0.4,
-    position = position_dodge(width = 0.5)) +
+  geom_ribbon(aes(ymin=exp(log_est-se), ymax = exp(log_est+se)), alpha=0.4) +
   facet_wrap(~ species, scale="free_y") +
   theme_bw() +
-  scale_color_viridis(discrete=TRUE,end=0.8) +
-  ylab("Estimate (+/- 1SE)")
+  ylab("Estimate (+/- 1SE)") +
+  theme(strip.background =element_rect(fill="white")) +
+  theme(strip.text.x = element_text(size = 4),
+        axis.text.x = element_text(size=5, angle = 90))
 dev.off()
 
 df = null_df[,c("year","est","species")]
 df$est_ll = ll_df$est
 df$ratio = df$est_ll / df$est
+df = dplyr::filter(df, species!="")
 
 pdf("plots/ratio.pdf")
 ggplot(df, aes(year, ratio,group=species)) +
@@ -104,7 +107,10 @@ ggplot(df, aes(year, ratio,group=species)) +
   facet_wrap(~ species, scale="free_y") +
   theme_bw() +
   ylab("Ratio log-linear estimate / null estimated biomass") +
-  scale_color_viridis(discrete=TRUE,end=0.8)
+  theme_bw() +
+  theme(strip.background =element_rect(fill="white")) +
+  theme(strip.text.x = element_text(size = 4),
+        axis.text.x = element_text(size=5, angle = 90))
 dev.off()
 
 

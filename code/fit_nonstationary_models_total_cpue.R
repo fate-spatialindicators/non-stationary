@@ -39,7 +39,7 @@ ll_temp_predictions = list()
 ll_temp_index = list()
 
 # loop over species to fit models ----
-for(i in 31:nrow(species)){
+for(i in 1:nrow(species)){
 
   comm_name = species$common_name[i]
 

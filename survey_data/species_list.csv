@@ -1,44 +1,44 @@
-﻿Scientific Name,Common Name,Priority to include,Species,Original
-Anoplopoma fimbria,sablefish,yes,Sablefish,Y
-Atheresthes stomias,"flounder, arrowtooth",yes,Arrowtooth flounder,Y
-Citharichthys sordidus,"sanddab, Pacific",yes,Pacific sanddab,Y
-Coryphaenoides acrolepis,Pacific grenadiers,,Pacific grenadiers,Y
-Embassichthys bathybius,"sole, deepsea",maybe,Deepsea sole,Y
-Eopsetta jordani,"sole, petrale",yes,Petrale sole,Y
-Glyptocephalus zachirus,"sole, rex",yes,Rex sole,Y
-Hippoglossoides elassodon,"sole, flathead",maybe,Flathead sole,Y
-Microstomus pacificus,"sole, Dover",maybe,Dover sole,Y
-Ophiodon elongatus,lingcod,yes,Lingcod,Y
-Parophrys vetulus,"sole, English",yes,English sole,Y
-Pleuronichthys decurrens,"turbot, curlfin",maybe,Curlfin turbot,Y
-Raja rhina,"skate, longnose",yes,Longnose skate,Y
-Sebastes alutus,Pacific ocean perch,maybe,Pacific ocean perch,Y
-Sebastes aurora,"rockfish, aurora",maybe,Aurora rockfish,Y
-Sebastes babcocki,"rockfish, redbanded",maybe,Redbanded rockfish,Y
-Sebastes chlorostictus,"rockfish, greenspotted",maybe,Greenspotted rockfish,Y
-Sebastes crameri,"rockfish, darkblotched",maybe,Darkblotched rockfish,Y
-Sebastes diploproa,"rockfish, splitnose",maybe,Splitnose rockfish ,Y
-Sebastes elongatus,"rockfish, greenstriped",maybe,Greenstriped rockfish,Y
-Sebastes flavidus,"rockfish, yellowtail",maybe,Yellowtail rockfish,Y
-Sebastes goodei,"rockfish, chilipepper",maybe,Chilipepper rockfish,Y
-Sebastes helvomaculatus,"rockfish, rosethorn",maybe,Rosethorn rockfish,Y
-Sebastes jordani,"rockfish, shortbelly",yes,Shortbelly rockfish,Y
-Sebastes melanostomus,"rockfish, melanostomus",maybe,Melanostomus rockfish,Y
-Sebastes paucispinis,bocaccio,maybe,Bocaccio,Y
-Sebastes pinniger,"rockfish, canary",maybe,Canary rockfish,Y
-Sebastes proriger,redstripe,,Redstripe,Y
-Sebastes saxicola,"rockfish, stripetail",maybe,Stripetail rockfish,Y
-Sebastes zacentrus,"rockfish, sharpchin",maybe,Sharpchin rockfish,Y
-Sebastolobus alascanus,"thornyhead, shortspine ",maybe,Shortspine  thornyhead ,Y
-Sebastolobus altivelis,"thornyhead, longspine",maybe,Longspine thornyhead,Y
-Squalus suckleyi,"dogfish, North Pacific",maybe,Dogfish,Y
-Sebastolobus altivelis,,,,N
-Cancer magister,,,,N
-Hydrolagus colliei,,,,N
-Albatrossia pectoralis,,,,N
-Raja binoculata,,,,N
-Sebastes semicinctus,,,,N
-Lyopsetta exilis,,,,N
-Chionoecetes tanneri,,,,N
-Sebastes entomelas,,,,N
-Bathyraja kincaidii,,,,N
+﻿Scientific Name,Common Name,Priority to include,Species,Original,Productivity,Susceptibility,Vulnerability,Depletion
+Anoplopoma fimbria,sablefish,yes,Sablefish,Y,1.61 ,1.88 ,1.64 ,0.39 
+Atheresthes stomias,"flounder, arrowtooth",yes,Arrowtooth flounder,Y,1.33 ,2.05 ,1.21 ,0.87 
+Citharichthys sordidus,"sanddab, Pacific",yes,Pacific sanddab,Y,2.40 ,2.10 ,1.25 ,0.96 
+Coryphaenoides acrolepis,Pacific grenadiers,,Pacific grenadiers,Y,1.44 ,1.95 ,1.82 ,
+Embassichthys bathybius,"sole, deepsea",maybe,Deepsea sole,Y,,,,
+Eopsetta jordani,"sole, petrale",yes,Petrale sole,Y,1.70 ,2.44 ,1.94 ,0.39 
+Glyptocephalus zachirus,"sole, rex",yes,Rex sole,Y,2.05 ,1.86 ,1.28,0.80 
+Hippoglossoides elassodon,"sole, flathead",maybe,Flathead sole,Y,2.25 ,1.92 ,1.26 ,
+Microstomus pacificus,"sole, Dover",maybe,Dover sole,Y,1.36 ,2.57 ,1.54 ,0.84 
+Ophiodon elongatus,lingcod,yes,Lingcod,Y,1.75 ,1.92 ,1.55 ,0.45
+Parophrys vetulus,"sole, English",yes,English sole,Y,2.30 ,2.05 ,1.19 ,0.88 
+Pleuronichthys decurrens,"turbot, curlfin",maybe,Curlfin sole,Y,1.72 ,1.75 ,1.23 ,
+Raja rhina,"skate, longnose",yes,Longnose skate,Y,,,,
+Sebastes alutus,Pacific ocean perch,maybe,Pacific ocean perch,Y,1.44 ,1.67 ,1.69 ,0.77 
+Sebastes aurora,"rockfish, aurora",maybe,Aurora rockfish,Y,1.89 ,2.29 ,2.10 ,0.64 
+Sebastes babcocki,"rockfish, redbanded",maybe,Redbanded rockfish,Y,1.28 ,2.05 ,2.02 ,
+Sebastes chlorostictus,"rockfish, greenspotted",maybe,Greenspotted rockfish,Y,1.39 ,2.14 ,1.98 ,0.35 
+Sebastes crameri,"rockfish, darkblotched",maybe,Darkblotched rockfish,Y,1.39 ,2.24 ,1.92 ,0.40 
+Sebastes diploproa,"rockfish, splitnose",maybe,Splitnose rockfish ,Y,1.28 ,1.60 ,1.82 ,0.66 
+Sebastes elongatus,"rockfish, greenstriped",maybe,Greenstriped rockfish,Y,1.28 ,1.76 ,1.88 ,0.81 
+Sebastes flavidus,"rockfish, yellowtail",maybe,Yellowtail rockfish,Y,1.33 ,1.88 ,1.88 ,0.75 
+Sebastes goodei,"rockfish, chilipepper",maybe,Chilipepper rockfish,Y,1.83 ,0.00 ,1.35 ,0.64 
+Sebastes helvomaculatus,"rockfish, rosethorn",maybe,Rosethorn rockfish,Y,1.19 ,2.05 ,2.09 ,
+Sebastes jordani,"rockfish, shortbelly",yes,Shortbelly rockfish,Y,1.94 ,1.40 ,1.13 ,
+Sebastes melanostomus,"rockfish, melanostomus",maybe,Melanostomus rockfish,Y,,,,
+Sebastes paucispinis,bocaccio,maybe,Bocaccio,Y,1.28 ,2.04 ,1.93 ,0.49 
+Sebastes pinniger,"rockfish, canary",maybe,Canary rockfish,Y,1.61 ,2.43 ,2.01 ,0.56 
+Sebastes proriger,redstripe,,Redstripe,Y,1.31 ,2.33 ,2.16 ,
+Sebastes saxicola,"rockfish, stripetail",maybe,Stripetail rockfish,Y,1.39 ,1.81 ,1.80 ,0.775 
+Sebastes zacentrus,"rockfish, sharpchin",maybe,Sharpchin rockfish,Y,1.36 ,2.24 ,2.05 ,
+Sebastolobus alascanus,"thornyhead, shortspine ",maybe,Shortspine  thornyhead ,Y,1.33 ,1.68 ,1.80 ,0.74 
+Sebastolobus altivelis,"thornyhead, longspine",maybe,Longspine thornyhead,Y,1.47 ,1.16 ,1.54 ,0.75 
+Squalus suckleyi,"dogfish, North Pacific",maybe,Dogfish,Y,1.11 ,1.98 ,2.13 ,0.63 
+Sebastolobus altivelis,"thornyhead, longspine",maybe,Longspine thornyhead,Y,1.47 ,1.16 ,1.54 ,0.75 
+Cancer magister,"crab, Dungeness",,Dungeness crab,N,,,,
+Hydrolagus colliei,"ratfish, spotted",,Spotted ratfish,N,1.63 ,2.05 ,1.72 ,
+Albatrossia pectoralis,"grenadier, giant",,Giant grenadier,N,,,,
+Raja binoculata,"skate, big",,Big skate,N,,,,
+Sebastes semicinctus,"rockfish, halfbanded",,Halfbanded rockfish,N,2.00 ,1.76 ,1.26 ,
+Lyopsetta exilis,"sole, slender",,Slender sole,N,,,,
+Chionoecetes tanneri,"crab, tanner",,Tanner crab,N,,,,
+Sebastes entomelas,"rockfish, widow",,Widow rockfishes,N,1.31 ,2.16 ,2.05 ,0.92 
+Bathyraja kincaidii,"skate, sandpaper",,Sandpaper skate,N,,,,
