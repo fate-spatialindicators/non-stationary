@@ -7,6 +7,10 @@
 library(sdmTMB)
 library(dplyr)
 
+# library(future)
+# options(future.globals.maxSize = 4e3 * 1024 ^ 2) # ~4GB
+# plan(multisession, workers = max(floor(availableCores() / 4), 4L))
+
 n_cutoff = 20 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
 # Species of interest
 species = read.csv("survey_data/species_list.csv")
