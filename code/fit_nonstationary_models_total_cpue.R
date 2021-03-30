@@ -47,10 +47,11 @@ for(i in 1:nrow(species)){
 
   comm_name = species$common_name[i]
 
-  sub = dplyr::filter(dat, scientific_name == species$scientific_name[i])
-  sub$year = as.factor(sub$year)
-  sub$depth_scaled = as.numeric(scale(sub$depth_m))
-  sub$depth_scaled2 = sub$depth_scaled^2
+  sub <- dplyr::filter(dat, scientific_name == species$scientific_name[i])
+  sub$year <- as.factor(sub$year)
+  temp <- (sub$depth_m - mean(-grid$depth))
+  sub$depth_scaled <- temp / sd(grid$depth)
+  sub$depth_scaled2 <- sub$depth_scaled^2
 
   spde = make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
 
