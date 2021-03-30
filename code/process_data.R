@@ -4,45 +4,32 @@ library(ggplot2)
 library(viridis)
 
 # Species of interest
-species = read.csv("survey_data/species_list_revised.csv")
+species = read.csv("survey_data/species_list.csv")
 names(species) = tolower(names(species))
 species = dplyr::rename(species,
   common_name = common.name,
-  scientific_name = scientific.name,
-  juv_threshold = max.length.cm)
+  scientific_name = scientific.name)
 
 for(i in 1:nrow(species)){
 
   comm_name = species$common_name[i]
-  dat = readRDS(paste0("data/", sub(" ", "_", comm_name), "_expanded.rds"))
-
-  dat$depth_scaled = as.numeric(scale(dat$depth_m))
-  dat$depth_scaled2 = dat$depth_scaled^2
 
   load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 
   df = data.frame(name = comm_name,
-    model = c("adult", "adult","juvenile","juvenile"),
-    loglinear = c(FALSE,TRUE,FALSE,TRUE))
+    model = c("adult", "adult"),
+    loglinear = c(FALSE,TRUE))
   df$aic = NA
   df$trend = NA
   df$trend_se = NA
 
-  if(class(m_adult)!="try-error") {
-    df$aic[1] = AIC(m_adult)
+  if(class(ad_fit)!="try-error") {
+    df$aic[1] = AIC(ad_fit)
   }
-  if(class(m_adult_ll)!="try-error") {
-    df$aic[2] = AIC(m_adult_ll)
-    df$trend[2] = m_adult_ll$sd_report$value[which(names(m_adult_ll$sd_report$value) == "b_epsilon_logit")]
-    df$trend_se[2] = m_adult_ll$sd_report$sd[which(names(m_adult_ll$sd_report$value) == "b_epsilon_logit")]
-  }
-  if(class(m_juv)!="try-error") {
-    df$aic[3] = AIC(m_juv)
-  }
-  if(class(m_juv_ll)!="try-error") {
-    df$aic[4] = AIC(m_juv_ll)
-    df$trend[4] = m_juv_ll$sd_report$value[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
-    df$trend_se[4] = m_juv_ll$sd_report$sd[which(names(m_juv_ll$sd_report$value) == "b_epsilon_logit")]
+  if(class(ad_fit_ll)!="try-error") {
+    df$aic[2] = AIC(ad_fit_ll)
+    df$trend[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
+    df$trend_se[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
   }
 
   if(i==1) {
@@ -54,16 +41,31 @@ for(i in 1:nrow(species)){
 
 
 # look at coefficients for adult models
-pdf("plots/Trend_summaries.pdf")
+jpeg("plots/Trend_summaries.jpeg")
 
-p1 = dplyr::filter(df_all, loglinear==TRUE, model=="adult", name!="Longspine thornyhead") %>%
+p1 = dplyr::filter(df_all, loglinear==TRUE, model=="adult", name %in% c("","thornyhead, longspine","sole, deepsea","skate, sandpaper")==FALSE) %>%
   ggplot(aes(name,trend)) +
   geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),col="darkblue",size=0.8) +
   xlab("Species") + ylab("Trend in adult spatiotemporal sd (+/- 2SE)") +
   geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
   coord_flip() +
   theme_bw()
-#p1
+p1
+dev.off()
+
+df = dplyr::filter(df_all, !is.na(trend)) %>%
+  dplyr::rename(common_name = name)
+df = dplyr::left_join(species, df)
+
+jpeg("plots/Trend_depletion.jpeg")
+
+ggplot(dplyr::filter(df, common_name %in% c("","thornyhead, longspine","sole, deepsea")==FALSE), aes(depletion,trend)) +
+  geom_pointrange(aes(ymin=trend-trend_se,ymax=trend+trend_se)) +
+  #geom_point() +
+  geom_smooth(method="lm") +
+  xlim(0.25,1) +
+  ylim(-0.25,0.11)
+dev.off()
 
 p2 = dplyr::filter(df_all, loglinear==TRUE, model!="adult", name!="Longspine thornyhead") %>%
   ggplot(aes(name,trend)) +

@@ -62,15 +62,15 @@ for(i in 1:nrow(species)){
                       family = tweedie(link = "log"), epsilon_predictor = "time")
   )
 
-  # calculate avg bottom temp
-  temp = dplyr::group_by(sub, year) %>%
-    dplyr::summarize(mean_temp = mean(temperature_at_gear_c_der,na.rm=T))
-  temp$mean_temp = scale(temp$mean_temp)
-  sub = dplyr::left_join(sub, temp)
-  ad_fit_ll_temp = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-                         data = sub, time = "year", spde = spde,
-                         family = tweedie(link = "log"), epsilon_predictor = "mean_temp")
-  )
+  # # calculate avg bottom temp
+  # temp = dplyr::group_by(sub, year) %>%
+  #   dplyr::summarize(mean_temp = mean(temperature_at_gear_c_der,na.rm=T))
+  # temp$mean_temp = scale(temp$mean_temp)
+  # sub = dplyr::left_join(sub, temp)
+  # ad_fit_ll_temp = try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+  #                        data = sub, time = "year", spde = spde,
+  #                        family = tweedie(link = "log"), epsilon_predictor = "mean_temp")
+  # )
 
   if(class(ad_fit)!="try-error") {
     # calculate the biomass trend for the adult models
@@ -81,20 +81,20 @@ for(i in 1:nrow(species)){
     ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
     ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = FALSE)
   }
-  if(class(ad_fit_ll_temp)!="try-error") {
-    ll_temp_predictions[[i]] <- predict(ad_fit_ll_temp, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
-    ll_temp_index[[i]] <- get_index(ll_temp_predictions[[i]], bias_correct = FALSE)
-  }
+  # if(class(ad_fit_ll_temp)!="try-error") {
+  #   ll_temp_predictions[[i]] <- predict(ad_fit_ll_temp, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+  #   ll_temp_index[[i]] <- get_index(ll_temp_predictions[[i]], bias_correct = FALSE)
+  # }
   # drop out high memory objects
-  ad_fit$data = NULL
-  ad_fit$tmb_data = NULL
-  ad_fit$spde = NULL
-  ad_fit_ll$data = NULL
-  ad_fit_ll$tmb_data = NULL
-  ad_fit_ll$spde = NULL
-  ad_fit_ll_temp$data = NULL
-  ad_fit_ll_temp$tmb_data = NULL
-  ad_fit_ll_temp$spde = NULL
+  # ad_fit$data = NULL
+  # ad_fit$tmb_data = NULL
+  # ad_fit$spde = NULL
+  # ad_fit_ll$data = NULL
+  # ad_fit_ll$tmb_data = NULL
+  # ad_fit_ll$spde = NULL
+  # ad_fit_ll_temp$data = NULL
+  # ad_fit_ll_temp$tmb_data = NULL
+  # ad_fit_ll_temp$spde = NULL
   if (!dir.exists("output")) {dir.create("output")}
   save(ad_fit, ad_fit_ll, ad_fit_ll_temp,file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 }
