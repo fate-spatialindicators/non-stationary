@@ -100,7 +100,7 @@ for(i in 1:nrow(species)){
   # ad_fit_ll_temp$tmb_data = NULL
   # ad_fit_ll_temp$spde = NULL
   if (!dir.exists("output")) {dir.create("output")}
-  save(ad_fit, ad_fit_ll, ad_fit_ll_temp,file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
+  save(ad_fit, ad_fit_ll, file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
 }
 
 save(null_index, null_predictions, ll_index, ll_predictions, ll_temp_index, ll_temp_predictions, file="indices_totalCPUE.Rdata")
