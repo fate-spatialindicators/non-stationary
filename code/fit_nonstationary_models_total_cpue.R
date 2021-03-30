@@ -74,15 +74,15 @@ for(i in 1:nrow(species)){
 
   if(class(ad_fit)!="try-error") {
     # calculate the biomass trend for the adult models
-    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE)
     null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = FALSE)
   }
   if(class(ad_fit_ll)!="try-error") {
-    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE)
     ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = FALSE)
   }
   # if(class(ad_fit_ll_temp)!="try-error") {
-  #   ll_temp_predictions[[i]] <- predict(ad_fit_ll_temp, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+  #   ll_temp_predictions[[i]] <- predict(ad_fit_ll_temp, newdata = pred_grid, return_tmb_object = TRUE)
   #   ll_temp_index[[i]] <- get_index(ll_temp_predictions[[i]], bias_correct = FALSE)
   # }
   # drop out high memory objects
