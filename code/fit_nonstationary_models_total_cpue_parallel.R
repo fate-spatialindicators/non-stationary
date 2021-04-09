@@ -18,6 +18,7 @@ species <- dplyr::rename(species,
 )
 
 dat <- readRDS("survey_data/all_data.rds")
+dat <- left_join(select(species, scientific_name, common_name), dat)
 grid <- readRDS("data/wc_grid.rds")
 grid <- rename(grid, lon = X, lat = Y)
 grid$depth_scaled <- as.numeric(scale(grid$depth))
@@ -46,11 +47,8 @@ fit_models <- function(sub) {
       data = sub, time = "year", spde = spde,
       family = tweedie(link = "log"), epsilon_predictor = "time"
     )}, error = function(e) NA)
-
-  sub_temp <- left_join(sub, select(species, scientific_name, common_name))
-  comm_name <- sub_temp$common_name[[1]]
   save(ad_fit, ad_fit_ll,
-    file = paste0("output/", sub(" ", "_", comm_name), "_all_models.RData")
+    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
   )
 }
 
