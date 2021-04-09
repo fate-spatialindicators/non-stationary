@@ -34,21 +34,26 @@ dat$depth_scaled <- temp / sd(grid$depth)
 dat$depth_scaled2 <- dat$depth_scaled^2
 
 fit_models <- function(sub) {
-  browser()
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
-  ad_fit <- try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-    data = sub, time = "year", spde = spde, family = tweedie(link = "log")
-  ))
+  ad_fit <- tryCatch({
+    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+      data = sub, time = "year", spde = spde, family = tweedie(link = "log")
+    )
+  }, error = function(e) NA)
   sub$time <- as.numeric(sub$year) - min(as.numeric(sub$year)) + 1
-  ad_fit_ll <- try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-    data = sub, time = "year", spde = spde,
-    family = tweedie(link = "log"), epsilon_predictor = "time"
-  ))
+  ad_fit_ll <- tryCatch({
+    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+      data = sub, time = "year", spde = spde,
+      family = tweedie(link = "log"), epsilon_predictor = "time"
+    )}, error = function(e) NA)
+
+  sub_temp <- left_join(sub, select(species, scientific_name, common_name))
+  comm_name <- sub_temp$common_name[[1]]
   save(ad_fit, ad_fit_ll,
     file = paste0("output/", sub(" ", "_", comm_name), "_all_models.RData")
   )
 }
 
 split(dat, dat$scientific_name) %>%
-  # purrr::walk(fit_models)
   furrr::future_walk(fit_models)
+  # purrr::walk(fit_models) # serial for testing
