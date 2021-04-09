@@ -4,3 +4,5 @@
 .Ruserdata
 survey_data/*.rds
 .DS_Store
+output/null_predictions.rds
+output/ll_predictions.rds
