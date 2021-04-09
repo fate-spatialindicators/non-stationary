@@ -1,0 +1,54 @@
+## Fit Stationary and Non-Stationary Models to zero and positive responses ##
+## In parallel ##
+
+library(sdmTMB)
+library(dplyr)
+library(future)
+options(future.globals.maxSize = 4e3 * 1024 ^ 2) # ~4GB
+plan(multisession, workers = max(floor(availableCores() / 4), 4L))
+if (!dir.exists("output")) dir.create("output")
+
+# 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
+n_cutoff <- 20
+species <- read.csv("survey_data/species_list.csv")
+names(species) <- tolower(names(species))
+species <- dplyr::rename(species,
+  common_name = common.name,
+  scientific_name = scientific.name
+)
+
+dat <- readRDS("survey_data/all_data.rds")
+grid <- readRDS("data/wc_grid.rds")
+grid <- rename(grid, lon = X, lat = Y)
+grid$depth_scaled <- as.numeric(scale(grid$depth))
+grid$depth_scaled2 <- grid$depth_scaled^2
+
+grid$cell <- seq(1, nrow(grid))
+pred_grid <- expand.grid(cell = grid$cell, year = seq(2003, 2018))
+pred_grid <- left_join(pred_grid, grid)
+pred_grid$year <- as.factor(pred_grid$year)
+
+dat$year <- as.factor(dat$year)
+temp <- (dat$depth_m - mean(-grid$depth))
+dat$depth_scaled <- temp / sd(grid$depth)
+dat$depth_scaled2 <- dat$depth_scaled^2
+
+fit_models <- function(sub) {
+  browser()
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
+  ad_fit <- try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+    data = sub, time = "year", spde = spde, family = tweedie(link = "log")
+  ))
+  sub$time <- as.numeric(sub$year) - min(as.numeric(sub$year)) + 1
+  ad_fit_ll <- try(sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+    data = sub, time = "year", spde = spde,
+    family = tweedie(link = "log"), epsilon_predictor = "time"
+  ))
+  save(ad_fit, ad_fit_ll,
+    file = paste0("output/", sub(" ", "_", comm_name), "_all_models.RData")
+  )
+}
+
+split(dat, dat$scientific_name) %>%
+  # purrr::walk(fit_models)
+  furrr::future_walk(fit_models)
