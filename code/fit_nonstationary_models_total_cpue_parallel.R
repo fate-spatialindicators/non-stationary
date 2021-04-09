@@ -55,3 +55,5 @@ fit_models <- function(sub) {
 split(dat, dat$scientific_name) %>%
   furrr::future_walk(fit_models)
   # purrr::walk(fit_models) # serial for testing
+
+plan(sequential) # avoid RStudio crashes on Session Restart R
