@@ -41,7 +41,7 @@ make_predictions <- function(sp, f) {
   bind_rows(p1, p2) %>%
     mutate(species = sp)
 }
-pred <- furrr::future_map2(.sp, files, .f = make_predictions)
-# pred <- purrr::map2(.sp, files, .f = make_predictions)
+pred <- furrr::future_map2_dfr(.sp, files, .f = make_predictions)
+# pred <- purrr::map2_dfr(.sp, files, .f = make_predictions)
 
 plan(sequential) # avoid crashes
