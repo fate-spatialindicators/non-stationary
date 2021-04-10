@@ -4,7 +4,7 @@ library(sdmTMB)
 library(dplyr)
 library(ggplot2)
 library(future)
-plan(multisession, workers = max(floor(availableCores() / 4), 4L))
+plan(multisession, workers = max(floor(availableCores() / 2), 6L))
 
 species <- read.csv("survey_data/species_list.csv")
 names(species) <- tolower(names(species))
@@ -19,14 +19,21 @@ grid <- mutate(grid,
   depth_scaled2 = depth_scaled^2
 )
 grid$cell <- seq(1, nrow(grid))
-pred_grid <- expand.grid(cell = grid$cell, year = c(2003L, 2018L))
+pred_grid <- expand.grid(cell = grid$cell, year = seq(2003L, 2018L))
 pred_grid <- left_join(pred_grid, grid, by = "cell")
-pred_grid$year <- factor(pred_grid$year, levels = as.character(seq(2003, 2018)))
+pred_grid$year <- as.factor(pred_grid$year)
+pred_grid$time <- as.numeric(pred_grid$year) -
+  min(as.numeric(pred_grid$year)) + 1
 
 .sp <- sub(" ", "_", species$common_name)
 files <- paste0("output/", .sp, "_all_models.RData")
 make_predictions <- function(sp, f) {
+  cat(sp, "\n")
   load(f)
+  # in case missing in old model:
+  ad_fit$epsilon_predictor <- "time"
+  ad_fit_ll$epsilon_predictor <- "time"
+
   p1 <- predict(ad_fit, newdata = pred_grid)
   p2 <- predict(ad_fit_ll, newdata = pred_grid)
   p1$type <- "Null"
@@ -35,3 +42,6 @@ make_predictions <- function(sp, f) {
     mutate(species = sp)
 }
 pred <- furrr::future_map2(.sp, files, .f = make_predictions)
+# pred <- purrr::map2(.sp, files, .f = make_predictions)
+
+plan(sequential) # avoid crashes
