@@ -4,7 +4,7 @@ library(sdmTMB)
 library(dplyr)
 library(ggplot2)
 library(future)
-plan(multisession, workers = max(floor(availableCores() / 2), 6L))
+plan(multisession, workers = max(floor(availableCores() / 4), 4L))
 
 species <- read.csv("survey_data/species_list.csv")
 names(species) <- tolower(names(species))
