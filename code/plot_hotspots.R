@@ -6,7 +6,7 @@ library(ggplot2)
 library(future)
 plan(multisession, workers = max(floor(availableCores() / 4), 4L))
 
-species <- read.csv("survey_data/species_list.csv")
+species <- read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
 names(species) <- tolower(names(species))
 species <- rename(species,
   common_name = common.name,
