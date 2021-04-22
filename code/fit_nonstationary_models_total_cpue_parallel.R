@@ -10,7 +10,7 @@ if (!dir.exists("output")) dir.create("output")
 
 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
 n_cutoff <- 20
-species <- read.csv("survey_data/species_list.csv")
+species <- read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
 names(species) <- tolower(names(species))
 species <- dplyr::rename(species,
   common_name = common.name,
