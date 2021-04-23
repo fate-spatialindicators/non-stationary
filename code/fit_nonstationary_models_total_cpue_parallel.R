@@ -33,7 +33,9 @@ dat$year <- as.factor(dat$year)
 temp <- (dat$depth_m - mean(-grid$depth))
 dat$depth_scaled <- temp / sd(grid$depth)
 dat$depth_scaled2 <- dat$depth_scaled^2
+dat$time <- as.numeric(dat$year) - floor(mean(unique(as.numeric(dat$year))))
 
+# spatial + spatiotemporal:
 fit_models <- function(sub) {
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
   ad_fit <- tryCatch({
@@ -41,7 +43,6 @@ fit_models <- function(sub) {
       data = sub, time = "year", spde = spde, family = tweedie(link = "log")
     )
   }, error = function(e) NA)
-  sub$time <- as.numeric(sub$year) - min(as.numeric(sub$year)) + 1
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
@@ -55,5 +56,45 @@ fit_models <- function(sub) {
 split(dat, dat$scientific_name) %>%
   furrr::future_walk(fit_models)
   # purrr::walk(fit_models) # serial for testing
+
+# AR1 spatiotemporal:
+fit_models_ar1 <- function(sub) {
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
+  ad_fit <- tryCatch({
+    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+      ar1_fields = TRUE, include_spatial = FALSE,
+      data = sub, time = "year", spde = spde, family = tweedie(link = "log")
+    )
+  }, error = function(e) NA)
+  ad_fit <- refit_model_if_needed(ad_fit)
+  ad_fit_ll <- tryCatch({
+    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+      data = sub, time = "year", spde = spde,
+      ar1_fields = TRUE, include_spatial = FALSE,
+      family = tweedie(link = "log"), epsilon_predictor = "time"
+    )}, error = function(e) NA)
+  ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
+  save(ad_fit, ad_fit_ll,
+    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1.RData")
+  )
+}
+
+refit_model_if_needed <- function(m) {
+  if (!is.na(m[[1]])) {
+    if (max(m$gradients) > 0.01) {
+      m <- tryCatch({
+        sdmTMB::run_extra_optimization(m,
+          nlminb_loops = 1L,
+          newton_steps = 1L
+        )
+      }, error = function(e) m)
+    }
+  }
+  m
+}
+
+split(dat, dat$scientific_name) %>%
+  furrr::future_walk(fit_models_ar1)
+  # purrr::walk(fit_models_ar1) # serial for testing
 
 plan(sequential) # avoid RStudio crashes on Session Restart R
