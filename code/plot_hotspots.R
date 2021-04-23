@@ -1,5 +1,3 @@
-# WORK IN PROGRESS! 2021-04-09 SA
-
 library(sdmTMB)
 library(dplyr)
 library(ggplot2)
@@ -22,13 +20,16 @@ grid$cell <- seq(1, nrow(grid))
 pred_grid <- expand.grid(cell = grid$cell, year = seq(2003L, 2018L))
 pred_grid <- left_join(pred_grid, grid, by = "cell")
 pred_grid$year <- as.factor(pred_grid$year)
+
 pred_grid$time <- as.numeric(pred_grid$year) -
-  min(as.numeric(pred_grid$year)) + 1
+  floor(mean(unique(as.numeric(pred_grid$year))))
+
 pred_grid$lat <- pred_grid$lat * 10
 pred_grid$lon <- pred_grid$lon * 10
 
 .sp <- sub(" ", "_", species$common_name)
-files <- paste0("output/", .sp, "_all_models.RData")
+# files <- paste0("output/", .sp, "_all_models.RData")
+files <- paste0("output/", .sp, "_ar1.RData")
 make_predictions <- function(sp, f) {
   cat(sp, "\n")
   load(f)
@@ -43,36 +44,47 @@ make_predictions <- function(sp, f) {
   bind_rows(p1, p2) %>%
     mutate(species = sp)
 }
+.sp <- .sp[c(10, 14)]
+files <- files[c(10, 14)]
 pred <- furrr::future_map2_dfr(.sp, files, .f = make_predictions)
 # pred <- purrr::map2_dfr(.sp, files, .f = make_predictions)
 
-pred %>%
-  filter(year %in% c(2003L, 2018L)) %>%
-  saveRDS(file = "output/predictions-2003-2018.rds")
+# pred %>%
+#   filter(year %in% c(2003L, 2018L)) %>%
+#   saveRDS(file = "output/predictions-2003-2018.rds")
 
 plan(sequential) # avoid crashes
 
-x <- filter(pred, species == "sole,_Dover", year %in% c(2003L, 2018L))
-g <- ggplot(x, aes(lon, lat, fill = epsilon_st)) +
+x <- filter(pred, species == .sp[2], year %in% c(2003L, 2018L))
+ggplot(x, aes(lon, lat, fill = epsilon_st)) +
   geom_raster() +
   facet_grid(year~type) +
   coord_fixed() +
   scale_fill_gradient2() +
   ggsidekick::theme_sleek()
-ggsave("plots/dover-quadrant-maps-eps.png", width = 6, height = 8)
+# ggsave("plots/dover-quadrant-maps-eps.png", width = 6, height = 8)
 
-g <- ggplot(x, aes(lon, lat, fill = est)) +
+ggplot(x, aes(lon, lat, fill = est)) +
   geom_raster() +
   facet_grid(year~type) +
   coord_fixed() +
   scale_fill_viridis_c() +
   ggsidekick::theme_sleek()
-ggsave("plots/dover-quadrant-maps-pred.png", width = 6, height = 8)
+# ggsave("plots/dover-quadrant-maps-pred.png", width = 6, height = 8)
 
-g <- ggplot(x, aes(lon, lat, fill = omega_s)) +
+x %>% group_by(lon, lat, year) %>%
+  summarise(diff = exp(est[type == "Null"]) / exp(est[type == "Non-stationary"])) %>%
+  ggplot(aes(lon, lat, fill = log10(diff))) +
   geom_raster() +
-  facet_grid(year~type) +
+  facet_grid(~year) +
   coord_fixed() +
   scale_fill_gradient2() +
   ggsidekick::theme_sleek()
-ggsave("plots/dover-quadrant-maps-omega.png", width = 6, height = 8)
+
+# g <- ggplot(x, aes(lon, lat, fill = omega_s)) +
+#   geom_raster() +
+#   facet_grid(year~type) +
+#   coord_fixed() +
+#   scale_fill_gradient2() +
+#   ggsidekick::theme_sleek()
+# ggsave("plots/dover-quadrant-maps-omega.png", width = 6, height = 8)
