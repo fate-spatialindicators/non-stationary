@@ -5,7 +5,7 @@ library(sdmTMB)
 library(dplyr)
 library(future)
 options(future.globals.maxSize = 4e3 * 1024 ^ 2) # ~4GB
-plan(multisession, workers = max(floor(availableCores() / 4), 4L))
+plan(multisession, workers = max(floor(availableCores() / 4), 4L)) # or just specify # cores manually
 if (!dir.exists("output")) dir.create("output")
 
 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
@@ -38,14 +38,16 @@ fit_models <- function(sub) {
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-      data = sub, time = "year", spde = spde, family = tweedie(link = "log")
+      data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
+      nlminb_loops = 2, newton_steps = 1
     )
   }, error = function(e) NA)
   sub$time <- as.numeric(sub$year) - min(as.numeric(sub$year)) + 1
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
-      family = tweedie(link = "log"), epsilon_predictor = "time"
+      family = tweedie(link = "log"), epsilon_predictor = "time",
+      nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
   save(ad_fit, ad_fit_ll,
     file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
