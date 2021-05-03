@@ -40,15 +40,13 @@ fit_models <- function(sub) {
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-      data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      nlminb_loops = 2, newton_steps = 1
+      data = sub, time = "year", spde = spde, family = tweedie(link = "log")
     )
   }, error = function(e) NA)
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
-      family = tweedie(link = "log"), epsilon_predictor = "time",
-      nlminb_loops = 2, newton_steps = 1
+      family = tweedie(link = "log"), epsilon_predictor = "time"
     )}, error = function(e) NA)
   save(ad_fit, ad_fit_ll,
     file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
