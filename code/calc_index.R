@@ -4,7 +4,7 @@ library(ggplot2)
 library(viridis)
 
 # Species of interest
-species = read.csv("survey_data/species_list.csv")
+species = read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
 names(species) = tolower(names(species))
 species = dplyr::rename(species,
                         common_name = common.name,
@@ -30,17 +30,9 @@ ll_predictions = list()
 null_index = list()
 ll_index = list()
 
-all_dat = readRDS("survey_data/all_data.rds")
-
 for(i in 1:nrow(species)){
 
-  comm_name = species$common_name[i]
-  sub = dplyr::filter(all_dat, scientific_name == species$scientific_name[i])
-
-  sub$depth_scaled = as.numeric(scale(sub$depth_m))
-  sub$depth_scaled2 = sub$depth_scaled^2
-
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
+  load(file=paste0("output/", sub(" ", "_", species$common_name[[i]]),"_ar1.RData"))
 
   est_index = TRUE
   if(class(ad_fit)=="try-error") est_index = FALSE
@@ -48,10 +40,10 @@ for(i in 1:nrow(species)){
 
   if(est_index==TRUE) {
     # calculate the biomass trend for the adult models
-    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
-    null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = TRUE)
+    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE)
+    null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = TRUE) # bug here?
 
-    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE, xy_cols = c("lon","lat"))
+    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE)
     ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = TRUE)
   }
 }
@@ -114,5 +106,3 @@ ggplot(df, aes(year, ratio,group=species)) +
   theme(strip.text.x = element_text(size = 4),
         axis.text.x = element_text(size=5, angle = 90))
 dev.off()
-
-
