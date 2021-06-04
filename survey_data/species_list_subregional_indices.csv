@@ -1,0 +1,14 @@
+﻿Scientific Name,Common Name,Priority to include,Species,Original,Productivity,Susceptibility,Vulnerability,Depletion
+Atheresthes stomias,"flounder, arrowtooth",yes,Arrowtooth flounder,Y,1.33 ,2.05 ,1.21 ,0.87 
+Eopsetta jordani,"sole, petrale",yes,Petrale sole,Y,1.70 ,2.44 ,1.94 ,0.39 
+Ophiodon elongatus,lingcod,yes,Lingcod,Y,1.75 ,1.92 ,1.55 ,0.45
+Sebastes alutus,Pacific ocean perch,maybe,Pacific ocean perch,Y,1.44 ,1.67 ,1.69 ,0.77 
+Sebastes aurora,"rockfish, aurora",maybe,Aurora rockfish,Y,1.89 ,2.29 ,2.10 ,0.64 
+Sebastes diploproa,"rockfish, splitnose",maybe,Splitnose rockfish ,Y,1.28 ,1.60 ,1.82 ,0.66 
+Sebastes jordani,"rockfish, shortbelly",yes,Shortbelly rockfish,Y,1.94 ,1.40 ,1.13 ,
+Squalus suckleyi,"dogfish, North Pacific",maybe,Dogfish,Y,1.11 ,1.98 ,2.13 ,0.63 
+Sebastolobus altivelis,"thornyhead, longspine",maybe,Longspine thornyhead,Y,1.47 ,1.16 ,1.54 ,0.75 
+Hydrolagus colliei,"ratfish, spotted",,Spotted ratfish,N,1.63 ,2.05 ,1.72 ,
+Sebastes semicinctus,"rockfish, halfbanded",,Halfbanded rockfish,N,2.00 ,1.76 ,1.26 ,
+Lyopsetta exilis,"sole, slender",,Slender sole,N,,,,
+Bathyraja kincaidii,"skate, sandpaper",,Sandpaper skate,N,,,,
