@@ -13,6 +13,8 @@ species = dplyr::rename(species,
 grid = readRDS("data/wc_grid.rds")
 grid = dplyr::rename(grid, lon = X, lat = Y)
 grid = dplyr::mutate(grid,
+  lon = lon*10,
+  lat = lat*10,
   depth_scaled = as.numeric(scale(-depth)),
   depth_scaled2 = depth_scaled^2) %>%
   dplyr::select(-log_depth_scaled,
