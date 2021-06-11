@@ -24,6 +24,7 @@ grid$cell = seq(1,nrow(grid))
 pred_grid = expand.grid(cell = grid$cell, year = 2003:2018)
 pred_grid = dplyr::left_join(pred_grid, grid)
 pred_grid$year = as.factor(pred_grid$year)
+pred_grid$time = as.numeric(pred_grid$year) - floor(mean(unique(as.numeric(pred_grid$year))))
 
 # create subsets of grid to predict to biogeographic regions
 pred_grid_N = filter(pred_grid, lat > 4500)
@@ -49,7 +50,7 @@ for(i in 1:nrow(species)){
   if(est_index==TRUE) {
     # calculate the biomass trend for the adult models, by subregion
     null_predictions_N[[i]] <- predict(ad_fit, newdata = pred_grid_N, return_tmb_object = TRUE)
-    null_index_N[[i]] <- get_index(null_predictions_N[[i]], bias_correct = TRUE)  # bug here?
+    null_index_N[[i]] <- get_index(null_predictions_N[[i]], bias_correct = TRUE)
     null_predictions_S[[i]] <- predict(ad_fit, newdata = pred_grid_S, return_tmb_object = TRUE)
     null_index_S[[i]] <- get_index(null_predictions_S[[i]], bias_correct = TRUE)
 

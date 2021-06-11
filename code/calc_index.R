@@ -24,6 +24,7 @@ grid$cell = seq(1,nrow(grid))
 pred_grid = expand.grid(cell = grid$cell, year = 2003:2018)
 pred_grid = dplyr::left_join(pred_grid, grid)
 pred_grid$year = as.factor(pred_grid$year)
+pred_grid$time = as.numeric(pred_grid$year) - floor(mean(unique(as.numeric(pred_grid$year))))
 
 null_predictions = list()
 ll_predictions = list()
@@ -41,7 +42,7 @@ for(i in 1:nrow(species)){
   if(est_index==TRUE) {
     # calculate the biomass trend for the adult models
     null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE)
-    null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = TRUE) # bug here?
+    null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = TRUE)
 
     ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE)
     ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = TRUE)
