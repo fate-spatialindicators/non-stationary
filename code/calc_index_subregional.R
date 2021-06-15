@@ -31,6 +31,7 @@ pred_grid_N = filter(pred_grid, lat > 4500)
 pred_grid_S = filter(pred_grid, lat <= 4500)
 #pred_grid_C = filter(pred_grid, lat <= 4500, lat >= 3850)
 
+
 null_predictions_N = list()
 ll_predictions_N = list()
 null_index_N = list()
@@ -50,14 +51,14 @@ for(i in 1:nrow(species)){
   if(est_index==TRUE) {
     # calculate the biomass trend for the adult models, by subregion
     null_predictions_N[[i]] <- predict(ad_fit, newdata = pred_grid_N, return_tmb_object = TRUE)
-    null_index_N[[i]] <- get_index(null_predictions_N[[i]], bias_correct = TRUE)
+    null_index_N[[i]] <- tryCatch({get_index(null_predictions_N[[i]], bias_correct = TRUE)}, error = function(e) NA)
     null_predictions_S[[i]] <- predict(ad_fit, newdata = pred_grid_S, return_tmb_object = TRUE)
-    null_index_S[[i]] <- get_index(null_predictions_S[[i]], bias_correct = TRUE)
+    null_index_S[[i]] <- tryCatch({get_index(null_predictions_S[[i]], bias_correct = TRUE)}, error = function(e) NA)
 
     ll_predictions_N[[i]] <- predict(ad_fit_ll, newdata = pred_grid_N, return_tmb_object = TRUE)
-    ll_index_N[[i]] <- get_index(ll_predictions_N[[i]], bias_correct = TRUE)
+    ll_index_N[[i]] <- tryCatch({get_index(ll_predictions_N[[i]], bias_correct = TRUE)}, error = function(e) NA)
     ll_predictions_S[[i]] <- predict(ad_fit_ll, newdata = pred_grid_S, return_tmb_object = TRUE)
-    ll_index_S[[i]] <- get_index(ll_predictions_S[[i]], bias_correct = TRUE)
+    ll_index_S[[i]] <- tryCatch({get_index(ll_predictions_S[[i]], bias_correct = TRUE)}, error = function(e) NA)
   }
   print(paste0("species ", i, " of ", nrow(species), " complete"))
 }
