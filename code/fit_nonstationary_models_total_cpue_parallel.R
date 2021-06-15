@@ -40,14 +40,18 @@ fit_models <- function(sub) {
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-      data = sub, time = "year", spde = spde, family = tweedie(link = "log")
+      data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
+      nlminb_loops = 2, newton_steps = 1
     )
   }, error = function(e) NA)
+  ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
-      family = tweedie(link = "log"), epsilon_predictor = "time"
+      family = tweedie(link = "log"), epsilon_predictor = "time",
+      nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
+  ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
     file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
   )
@@ -63,7 +67,8 @@ fit_models_ar1 <- function(sub) {
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       ar1_fields = TRUE, include_spatial = FALSE,
-      data = sub, time = "year", spde = spde, family = tweedie(link = "log")
+      data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
+      nlminb_loops = 2, newton_steps = 1
     )
   }, error = function(e) NA)
   ad_fit <- refit_model_if_needed(ad_fit)
@@ -71,7 +76,8 @@ fit_models_ar1 <- function(sub) {
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
       ar1_fields = TRUE, include_spatial = FALSE,
-      family = tweedie(link = "log"), epsilon_predictor = "time"
+      family = tweedie(link = "log"), epsilon_predictor = "time",
+      nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
   ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
