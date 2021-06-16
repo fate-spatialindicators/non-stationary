@@ -42,10 +42,10 @@ for(i in 1:nrow(species)){
   if(est_index==TRUE) {
     # calculate the biomass trend for the adult models
     null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE)
-    null_index[[i]] <- get_index(null_predictions[[i]], bias_correct = TRUE)
+    null_index[[i]] <- tryCatch({get_index(null_predictions[[i]], bias_correct = TRUE)}, error = function(e) NA)
 
     ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE)
-    ll_index[[i]] <- get_index(ll_predictions[[i]], bias_correct = TRUE)
+    ll_index[[i]] <- tryCatch({get_index(ll_predictions[[i]], bias_correct = TRUE)}, error = function(e) NA)
   }
 }
 saveRDS(null_predictions,"output/null_predictions.rds")
