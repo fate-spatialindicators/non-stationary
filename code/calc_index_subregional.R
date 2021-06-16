@@ -73,12 +73,19 @@ saveRDS(ll_index_S,"output/ll_index_S.rds")
 # null_index_S = readRDS("output/null_index_S.rds")
 # ll_index_S = readRDS("output/ll_index_S.rds")
 
-null_df = bind_rows(null_index_N, null_index_S)
+#null_df = bind_rows(c(null_index_N,null_index_S))
+null_df = do.call(rbind, c(null_index_N, null_index_S))
+null_df = null_df[complete.cases(null_df),]
+
+# TO DO: NEED TO FIX DIMENSIONS FOR MATCHING SPECIES TO INDICES BY ROW
 null_df$species = rep(c(t(replicate(species$common_name, n=length(2003:2018)))), 2)
 null_df$region = rep(c(t(replicate("N", n=length(2003:2018))), t(replicate("S", n=length(2003:2018)))), nrow(species))
 null_df$model = "Constant"
 
-ll_df = bind_rows(ll_index_N, ll_index_S)
+#ll_df = bind_rows(c(ll_index_N,ll_index_S))
+#null_df = bind_rows(c(null_index_N,null_index_S))
+ll_df = do.call(rbind, c(ll_index_N, ll_index_S))
+ll_df = ll_df[complete.cases(ll_df),]
 ll_df$species = null_df$species
 ll_df$region = null_df$region
 ll_df$model = "Log-linear"
