@@ -1,11 +1,12 @@
 ## Fit Stationary and Non-Stationary Models to zero and positive responses ##
 ## In parallel ##
 
+remotes::install_github("pbs-assess/sdmTMB@pc-prior")
 library(sdmTMB)
 library(dplyr)
 library(future)
 options(future.globals.maxSize = 4e3 * 1024 ^ 2) # ~4GB
-plan(multisession, workers = max(floor(availableCores() / 4), 4L)) # or just specify # cores manually
+plan(multisession, workers = max(floor(availableCores() - 1), 4L)) # or just specify # cores manually
 if (!dir.exists("output")) dir.create("output")
 
 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
@@ -57,8 +58,8 @@ fit_models <- function(sub) {
   )
 }
 
-split(dat, dat$scientific_name) %>%
-  furrr::future_walk(fit_models)
+#split(dat, dat$scientific_name) %>%
+#  furrr::future_walk(fit_models)
   # purrr::walk(fit_models) # serial for testing
 
 # AR1 spatiotemporal:
@@ -68,6 +69,7 @@ fit_models_ar1 <- function(sub) {
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       ar1_fields = TRUE, include_spatial = FALSE,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
+      matern_prior_E = c(5, 0.05, 2, 0.05),
       nlminb_loops = 2, newton_steps = 1
     )
   }, error = function(e) NA)
@@ -77,6 +79,7 @@ fit_models_ar1 <- function(sub) {
       data = sub, time = "year", spde = spde,
       ar1_fields = TRUE, include_spatial = FALSE,
       family = tweedie(link = "log"), epsilon_predictor = "time",
+      matern_prior_E = c(5, 0.05, 2, 0.05),
       nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
   ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
