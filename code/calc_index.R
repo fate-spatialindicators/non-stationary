@@ -41,18 +41,22 @@ for(i in 1:nrow(species)){
 
   if(est_index==TRUE) {
     # calculate the biomass trend for the adult models
-    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, return_tmb_object = TRUE)
-    null_index[[i]] <- tryCatch({get_index(null_predictions[[i]], bias_correct = TRUE)}, error = function(e) NA)
+    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, sims = 500)
+    null_index[[i]] <- get_index_sims(null_predictions[[i]])
 
-    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, return_tmb_object = TRUE)
-    ll_index[[i]] <- tryCatch({get_index(ll_predictions[[i]], bias_correct = TRUE)}, error = function(e) NA)
+    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, sims = 500)
+    ll_index[[i]] <- get_index_sims(ll_predictions[[i]])
   }
+  print(paste0("species ", i, " of ", nrow(species), " complete"))
 }
-saveRDS(null_predictions,"output/null_predictions.rds")
-saveRDS(ll_predictions,"output/ll_predictions.rds")
+
+#saveRDS(null_predictions,"output/null_predictions.rds") # too large to save
+#saveRDS(ll_predictions,"output/ll_predictions.rds") # too large to save
 saveRDS(null_index,"output/null_index.rds")
 saveRDS(ll_index,"output/ll_index.rds")
 
+
+#---- plot results
 null_index = readRDS("output/null_index.rds")
 ll_index = readRDS("output/ll_index.rds")
 
@@ -67,28 +71,40 @@ joined_df = rbind(ll_df, null_df)
 
 joined_df = dplyr::filter(joined_df, species != "")
 pdf("plots/biomass_index_log.pdf")
-ggplot(joined_df, aes(year, log_est, fill=model, col=model,group=model)) +
+ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
   geom_line() +
-  geom_ribbon(aes(ymin=log_est-se, ymax = log_est+se), alpha=0.4) +
-  facet_wrap(~ species, scale="free_y") +
+  geom_ribbon(aes(ymin = log_est-se, ymax = log_est+se), alpha=0.4, colour = NA) +
+  facet_wrap(~ species, scale="free_y", ncol = 5) +
   theme_bw() +
   ylab("Log estimate (+/- 1SE)") +
   theme(strip.background =element_rect(fill="white")) +
-  theme(strip.text.x = element_text(size = 4),
-        axis.text.x = element_text(size=5, angle = 90))
+  theme(strip.text.x = element_text(size = 6),
+        axis.text.x = element_text(size=5, angle = 90),
+        axis.text.y = element_text(size=5),
+        legend.position = c(1, 0),
+        legend.justification = c(1, 0),
+        legend.key.size = unit(0.3, "cm"),
+        legend.text=element_text(size=rel(0.7)),
+        legend.title=element_text(size=rel(0.8)))
 dev.off()
 
 joined_df$model = as.factor(joined_df$model)
 pdf("plots/biomass_index_normal.pdf")
 ggplot(joined_df, aes(year, exp(log_est), fill=model,group=model,col=model)) +
   geom_line() +
-  geom_ribbon(aes(ymin=exp(log_est-se), ymax = exp(log_est+se)), alpha=0.4) +
-  facet_wrap(~ species, scale="free_y") +
+  geom_ribbon(aes(ymin = exp(log_est-se), ymax = exp(log_est+se)), alpha = 0.4, colour = NA) +
+  facet_wrap(~ species, scale="free_y", ncol = 5) +
   theme_bw() +
   ylab("Estimate (+/- 1SE)") +
   theme(strip.background =element_rect(fill="white")) +
-  theme(strip.text.x = element_text(size = 4),
-        axis.text.x = element_text(size=5, angle = 90))
+  theme(strip.text.x = element_text(size = 6),
+        axis.text.x = element_text(size=5, angle = 90),
+        axis.text.y = element_text(size=5),
+        legend.position = c(1, 0),
+        legend.justification = c(1, 0),
+        legend.key.size = unit(0.3, "cm"),
+        legend.text=element_text(size=rel(0.7)),
+        legend.title=element_text(size=rel(0.8)))
 dev.off()
 
 df = null_df[,c("year","est","species")]
@@ -99,11 +115,12 @@ df = dplyr::filter(df, species!="")
 pdf("plots/ratio.pdf")
 ggplot(df, aes(year, ratio,group=species)) +
   geom_line() +
-  facet_wrap(~ species, scale="free_y") +
+  facet_wrap(~ species, scale="free_y", ncol = 5) +
   theme_bw() +
   ylab("Ratio log-linear estimate / null estimated biomass") +
   theme_bw() +
   theme(strip.background =element_rect(fill="white")) +
-  theme(strip.text.x = element_text(size = 4),
-        axis.text.x = element_text(size=5, angle = 90))
+  theme(strip.text.x = element_text(size = 6),
+        axis.text.x = element_text(size=5, angle = 90),
+        axis.text.y = element_text(size=5))
 dev.off()
