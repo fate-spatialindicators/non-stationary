@@ -19,8 +19,9 @@ grid$cell <- seq(1, nrow(grid))
 pred_grid <- expand.grid(cell = grid$cell, year = seq(1982, 2019))
 pred_grid <- left_join(pred_grid, grid)
 pred_grid$year <- as.factor(pred_grid$year)
+pred_grid$time = as.numeric(pred_grid$year) - floor(mean(unique(as.numeric(pred_grid$year))))
 
-load(file=paste0("output/", sub(" ", "_", species$common_name[[i]]),"_ar1.RData"))
+load(file = "output/pollock_bering_ar1.RData")
 
 null_predictions <- predict(ad_fit, newdata = pred_grid, sims = 500)
 null_index <- get_index_sims(null_predictions)
@@ -28,10 +29,11 @@ null_index <- get_index_sims(null_predictions)
 ll_predictions <- predict(ad_fit_ll, newdata = pred_grid, sims = 500)
 ll_index <- get_index_sims(ll_predictions)
 
-saveRDS(null_predictions,"output/null_predictions_bering.rds")
-saveRDS(ll_predictions,"output/ll_predictions_bering.rds")
-saveRDS(null_index,"output/null_index_bering.rds")
-saveRDS(ll_index,"output/ll_index_bering.rds")
+saveRDS(null_predictions,"output/null_predictions_bering_pollock.rds")
+saveRDS(ll_predictions,"output/ll_predictions_bering_pollock.rds")
+saveRDS(null_index,"output/null_index_bering_pollock.rds")
+saveRDS(ll_index,"output/ll_index_bering_pollock.rds")
+rm(null_predictions, ll_predictions)
 
 #---- plot results
 #null_index = readRDS("output/null_index.rds")
@@ -41,7 +43,7 @@ null_index$model = "Constant"
 ll_index$model = "Log-linear"
 joined_df = rbind(ll_index, null_index)
 
-pdf("plots/biomass_index_log_bering.pdf")
+pdf("plots/biomass_index_log_bering_pollock.pdf")
 ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
   geom_line() +
   geom_ribbon(aes(ymin = log_est-se, ymax = log_est+se), alpha=0.4, colour = NA) +
@@ -54,7 +56,7 @@ ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
 dev.off()
 
 joined_df$model = as.factor(joined_df$model)
-pdf("plots/biomass_index_normal_bering.pdf")
+pdf("plots/biomass_index_normal_bering_pollock.pdf")
 ggplot(joined_df, aes(year, exp(log_est), fill=model,group=model,col=model)) +
   geom_line() +
   geom_ribbon(aes(ymin = exp(log_est-se), ymax = exp(log_est+se)), alpha = 0.4, colour = NA) +
