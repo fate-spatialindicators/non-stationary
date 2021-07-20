@@ -1,11 +1,12 @@
 library(dplyr)
 library(ggplot2)
+#devtools::install_github("seananderson/ggsidekick")
 theme_set(ggsidekick::theme_sleek())
 
-species <- read.csv("survey_data/species_list.csv")
+species <- read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
 names(species) <- tolower(names(species))
 species <- rename(species, common_name = common.name)
-files <- paste0("output/", sub(" ", "_", species$common_name), "_all_models.RData")
+files <- paste0("output/", sub(" ", "_", species$common_name), "_ar1.RData")
 models <- purrr::map(files, function(f) {
   cat(f, "\n")
   load(f)
@@ -19,6 +20,14 @@ get_b_eps <- function(x) {
     est_b_eps = est,
     lwr_b_eps = est - 1.96 * se,
     upr_b_eps = est + 1.96 * se
+  )
+}
+
+get_rho <- function(x) {
+  lp <- x$tmb_obj$env$last.par.best
+  rho <- as.list(x$tmb_obj$report(lp))$rho
+  tibble(
+    rho = rho
   )
 }
 
@@ -45,14 +54,16 @@ get_tweedie_phi <- function(x) {
 b_eps <- purrr::map_dfr(models, get_b_eps)
 tweedie_p <- purrr::map_dfr(models, get_tweedie_power)
 tweedie_phi <- purrr::map_dfr(models, get_tweedie_phi)
-out <- tibble(common_name = species$common_name)
-out <- bind_cols(out, b_eps, tweedie_p, tweedie_phi)
+rho <- purrr::map_dfr(models, get_rho)
+sp_names <- tibble(common_name = species$common_name)
+out <- bind_cols(sp_names, b_eps, tweedie_p, tweedie_phi, rho)
 
 g1 <- out %>%
   filter(est_b_eps > -0.3, est_b_eps < 0.3) %>%
-  ggplot(aes(est_b_eps, y = common_name, xmin = lwr_b_eps, xmax = upr_b_eps)) +
+  ggplot(aes(est_b_eps, y = reorder(common_name, est_b_eps), xmin = lwr_b_eps, xmax = upr_b_eps)) +
   geom_pointrange() +
-  geom_vline(xintercept = 0, lty = 2)
+  geom_vline(xintercept = 0, lty = 2) +
+  theme(axis.title.y=element_blank())
 g1
 
 g2 <- out %>%
@@ -83,3 +94,16 @@ g4
 
 g <- cowplot::plot_grid(g1, g4, g2, g3, nrow = 2L)
 ggsave("plots/tweedie_vs_epsilon_b.pdf", width = 9.5, height = 9.5)
+
+
+g5 <- out %>%
+  filter(est_b_eps > -0.3, est_b_eps < 0.3) %>%
+  ggplot(aes(rho, y = reorder(common_name, est_b_eps), xmin = 0)) +
+  geom_point() +
+  theme_bw() +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank())
+g5
+
+g2 <- cowplot::plot_grid(g1, g5, nrow = 1)
+ggsave("plots/rho_epsilon_b.pdf", width = 9.5, height = 5)
