@@ -33,21 +33,20 @@ dat$time <- as.numeric(dat$year) - floor(mean(unique(as.numeric(dat$year))))
 
 # spatial + spatiotemporal:
 fit_models <- function(sub) {
-  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      nlminb_loops = 2, newton_steps = 1
-    )
-  }, error = function(e) NA)
-  ad_fit <- refit_model_if_needed(ad_fit)
+      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
+    )}, error = function(e) NA)
+  #ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
       family = tweedie(link = "log"), epsilon_predictor = "time",
-      nlminb_loops = 2, newton_steps = 1
+      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
     )}, error = function(e) NA)
-  ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
+  #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
     file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
   )
@@ -59,39 +58,41 @@ fit_models <- function(sub) {
 
 # AR1 spatiotemporal:
 fit_models_ar1 <- function(sub) {
-  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       fields = "AR1", include_spatial = FALSE,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      nlminb_loops = 2, newton_steps = 1
-    )
-  }, error = function(e) NA)
-  ad_fit <- refit_model_if_needed(ad_fit)
+      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
+    )}, error = function(e) NA)
+  #ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
       fields = "AR1", include_spatial = FALSE,
       family = tweedie(link = "log"), epsilon_predictor = "time",
-      nlminb_loops = 2, newton_steps = 1
+      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
     )}, error = function(e) NA)
-  ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
+  #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
-    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1.RData")
+    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1_priors.RData")
   )
 }
 
-refit_model_if_needed <- function(m) {
-  if (max(m$gradients) > 0.01) {
-    m <- tryCatch({
-      sdmTMB::run_extra_optimization(m,
-        nlminb_loops = 1L,
-        newton_steps = 1L
-      )
-    }, error = function(e) m)
-  }
-  m
-}
+# refit_model_if_needed <- function(m) {
+#   if (class(m)!="try-error") {
+#     if (max(m$gradients) > 0.01) {
+#       m <- tryCatch({
+#         sdmTMB::run_extra_optimization(m,
+#                                        nlminb_loops = 1L,
+#                                        newton_steps = 1L
+#         )
+#       }, error = function(e) m)
+#     }
+#   }
+#   m
+# }
+
 
 split(dat, dat$scientific_name) %>%
   furrr::future_walk(fit_models_ar1)
