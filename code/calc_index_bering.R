@@ -50,9 +50,7 @@ ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
   theme_bw() +
   ylab("Log estimate (+/- 1SE)") +
   theme(strip.background =element_rect(fill="white")) +
-  theme(strip.text.x = element_text(size = 6),
-        axis.text.x = element_text(size=5, angle = 90),
-        axis.text.y = element_text(size=5))
+  theme(axis.text.x = element_text(angle = 90))
 dev.off()
 
 joined_df$model = as.factor(joined_df$model)
@@ -63,7 +61,6 @@ ggplot(joined_df, aes(year, exp(log_est), fill=model,group=model,col=model)) +
   theme_bw() +
   ylab("Estimate (+/- 1SE)") +
   theme(strip.background =element_rect(fill="white")) +
-  theme(strip.text.x = element_text(size = 6),
-        axis.text.x = element_text(size=5, angle = 90),
-        axis.text.y = element_text(size=5))
+  theme(strip.background =element_rect(fill="white")) +
+  theme(axis.text.x = element_text(angle = 90))
 dev.off()

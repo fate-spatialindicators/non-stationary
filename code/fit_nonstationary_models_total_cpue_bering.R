@@ -1,4 +1,4 @@
-## Fit Stationary and Non-Stationary Models to Bering Cod data ##
+## Fit Stationary and Non-Stationary Models to Bering cod and pollock data ##
 
 #remotes::install_github("pbs-assess/sdmTMB@pc-prior")
 library(sdmTMB)
