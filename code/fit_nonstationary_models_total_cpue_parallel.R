@@ -63,7 +63,12 @@ fit_models_ar1 <- function(sub) {
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       fields = "AR1", include_spatial = FALSE,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
+      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
+      priors = sdmTMBpriors(
+        phi = halfnormal(0, 10),
+        tweedie_p = normal(1.5, 2),
+        ar1_rho = normal(0, 0.99),
+        matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
     )}, error = function(e) NA)
   #ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
@@ -71,7 +76,12 @@ fit_models_ar1 <- function(sub) {
       data = sub, time = "year", spde = spde,
       fields = "AR1", include_spatial = FALSE,
       family = tweedie(link = "log"), epsilon_predictor = "time",
-      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
+      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
+      priors = sdmTMBpriors(
+        phi = halfnormal(0, 10),
+        tweedie_p = normal(1.5, 2),
+        ar1_rho = normal(0, 0.99),
+        matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
     )}, error = function(e) NA)
   #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
