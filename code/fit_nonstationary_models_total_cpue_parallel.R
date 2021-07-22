@@ -25,11 +25,6 @@ grid <- rename(grid, lon = X, lat = Y)
 grid$depth_scaled <- as.numeric(scale(grid$depth))
 grid$depth_scaled2 <- grid$depth_scaled^2
 
-grid$cell <- seq(1, nrow(grid))
-pred_grid <- expand.grid(cell = grid$cell, year = seq(2003, 2018))
-pred_grid <- left_join(pred_grid, grid)
-pred_grid$year <- as.factor(pred_grid$year)
-
 dat$year <- as.factor(dat$year)
 temp <- (dat$depth_m - mean(-grid$depth))
 dat$depth_scaled <- temp / sd(grid$depth)
