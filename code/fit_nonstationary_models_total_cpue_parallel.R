@@ -1,7 +1,7 @@
 ## Fit Stationary and Non-Stationary Models to zero and positive responses ##
 ## In parallel ##
 
-remotes::install_github("pbs-assess/sdmTMB@pc-prior")
+#remotes::install_github("pbs-assess/sdmTMB@priors-experimental")
 library(sdmTMB)
 library(dplyr)
 library(future)
@@ -62,9 +62,8 @@ fit_models_ar1 <- function(sub) {
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-      ar1_fields = TRUE, include_spatial = FALSE,
+      fields = "AR1", include_spatial = FALSE,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      matern_prior_E = c(5, 0.05, 2, 0.05),
       nlminb_loops = 2, newton_steps = 1
     )
   }, error = function(e) NA)
@@ -72,9 +71,8 @@ fit_models_ar1 <- function(sub) {
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
-      ar1_fields = TRUE, include_spatial = FALSE,
+      fields = "AR1", include_spatial = FALSE,
       family = tweedie(link = "log"), epsilon_predictor = "time",
-      matern_prior_E = c(5, 0.05, 2, 0.05),
       nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
   ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
@@ -84,15 +82,13 @@ fit_models_ar1 <- function(sub) {
 }
 
 refit_model_if_needed <- function(m) {
-  if (!is.na(m[[1]])) {
-    if (max(m$gradients) > 0.01) {
-      m <- tryCatch({
-        sdmTMB::run_extra_optimization(m,
-          nlminb_loops = 1L,
-          newton_steps = 1L
-        )
-      }, error = function(e) m)
-    }
+  if (max(m$gradients) > 0.01) {
+    m <- tryCatch({
+      sdmTMB::run_extra_optimization(m,
+        nlminb_loops = 1L,
+        newton_steps = 1L
+      )
+    }, error = function(e) m)
   }
   m
 }
