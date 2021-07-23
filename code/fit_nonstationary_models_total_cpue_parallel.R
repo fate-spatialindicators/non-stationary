@@ -1,7 +1,7 @@
 ## Fit Stationary and Non-Stationary Models to zero and positive responses ##
 ## In parallel ##
 
-#remotes::install_github("pbs-assess/sdmTMB@priors-experimental")
+remotes::install_github("pbs-assess/sdmTMB@pc-prior")
 library(sdmTMB)
 library(dplyr)
 library(future)
@@ -33,20 +33,21 @@ dat$time <- as.numeric(dat$year) - floor(mean(unique(as.numeric(dat$year))))
 
 # spatial + spatiotemporal:
 fit_models <- function(sub) {
-  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
-    )}, error = function(e) NA)
-  #ad_fit <- refit_model_if_needed(ad_fit)
+      nlminb_loops = 2, newton_steps = 1
+    )
+  }, error = function(e) NA)
+  ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
       family = tweedie(link = "log"), epsilon_predictor = "time",
-      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
+      nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
-  #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
+  ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
     file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
   )
@@ -58,51 +59,43 @@ fit_models <- function(sub) {
 
 # AR1 spatiotemporal:
 fit_models_ar1 <- function(sub) {
-  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff)
   ad_fit <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-      fields = "AR1", include_spatial = FALSE,
+      ar1_fields = TRUE, include_spatial = FALSE,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
-      priors = sdmTMBpriors(
-        phi = halfnormal(0, 10),
-        tweedie_p = normal(1.5, 2),
-        ar1_rho = normal(0, 0.99),
-        matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
-    )}, error = function(e) NA)
-  #ad_fit <- refit_model_if_needed(ad_fit)
+      matern_prior_E = c(5, 0.05, 2, 0.05),
+      nlminb_loops = 2, newton_steps = 1
+    )
+  }, error = function(e) NA)
+  ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       data = sub, time = "year", spde = spde,
-      fields = "AR1", include_spatial = FALSE,
+      ar1_fields = TRUE, include_spatial = FALSE,
       family = tweedie(link = "log"), epsilon_predictor = "time",
-      control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
-      priors = sdmTMBpriors(
-        phi = halfnormal(0, 10),
-        tweedie_p = normal(1.5, 2),
-        ar1_rho = normal(0, 0.99),
-        matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
+      matern_prior_E = c(5, 0.05, 2, 0.05),
+      nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
-  #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
+  ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
-    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1_priors.RData")
+    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1.RData")
   )
 }
 
-# refit_model_if_needed <- function(m) {
-#   if (class(m)!="try-error") {
-#     if (max(m$gradients) > 0.01) {
-#       m <- tryCatch({
-#         sdmTMB::run_extra_optimization(m,
-#                                        nlminb_loops = 1L,
-#                                        newton_steps = 1L
-#         )
-#       }, error = function(e) m)
-#     }
-#   }
-#   m
-# }
-
+refit_model_if_needed <- function(m) {
+  if (!is.na(m[[1]])) {
+    if (max(m$gradients) > 0.01) {
+      m <- tryCatch({
+        sdmTMB::run_extra_optimization(m,
+          nlminb_loops = 1L,
+          newton_steps = 1L
+        )
+      }, error = function(e) m)
+    }
+  }
+  m
+}
 
 split(dat, dat$scientific_name) %>%
   furrr::future_walk(fit_models_ar1)
