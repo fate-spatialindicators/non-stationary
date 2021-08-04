@@ -64,7 +64,7 @@ fit_models_ar1 <- function(sub) {
     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
       ar1_fields = TRUE, include_spatial = FALSE,
       data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-      matern_prior_E = c(5, 0.05, 2, 0.05),
+      matern_prior_E = c(15, 0.05, 10, 0.05),
       nlminb_loops = 2, newton_steps = 1
     )
   }, error = function(e) NA)
@@ -74,12 +74,12 @@ fit_models_ar1 <- function(sub) {
       data = sub, time = "year", spde = spde,
       ar1_fields = TRUE, include_spatial = FALSE,
       family = tweedie(link = "log"), epsilon_predictor = "time",
-      matern_prior_E = c(5, 0.05, 2, 0.05),
+      matern_prior_E = c(15, 0.05, 10, 0.05),
       nlminb_loops = 2, newton_steps = 1
     )}, error = function(e) NA)
   ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
-    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1.RData")
+    file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1_range15_sigma10.RData")
   )
 }
 

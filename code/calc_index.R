@@ -26,39 +26,45 @@ pred_grid = dplyr::left_join(pred_grid, grid)
 pred_grid$year = as.factor(pred_grid$year)
 pred_grid$time = as.numeric(pred_grid$year) - floor(mean(unique(as.numeric(pred_grid$year))))
 
-null_predictions = list()
-ll_predictions = list()
+null_predictions_summ = list()
+ll_predictions_summ = list()
 null_index = list()
 ll_index = list()
 
 for(i in 1:nrow(species)){
 
-  load(file=paste0("output/", sub(" ", "_", species$common_name[[i]]),"_ar1.RData"))
+  load(file=paste0("output/", sub(" ", "_", species$common_name[[i]]),"_ar1_range15_sigma10.RData"))
 
   est_index = TRUE
   if(class(ad_fit)=="try-error") est_index = FALSE
   if(class(ad_fit_ll)=="try-error") est_index = FALSE
 
   if(est_index==TRUE) {
-    # calculate the biomass trend for the adult models
-    null_predictions[[i]] <- predict(ad_fit, newdata = pred_grid, sims = 500)
-    null_index[[i]] <- get_index_sims(null_predictions[[i]])
+    null_predictions <- predict(ad_fit, newdata = pred_grid, sims = 500)
+    mean_null <- apply(null_predictions, 1, mean)
+    sd_null <- apply(null_predictions, 1, sd)
+    null_predictions_summ[[i]] <- cbind(mean_null, sd_null)
+    null_index[[i]] <- get_index_sims(null_predictions)
 
-    ll_predictions[[i]] <- predict(ad_fit_ll, newdata = pred_grid, sims = 500)
-    ll_index[[i]] <- get_index_sims(ll_predictions[[i]])
+    ll_predictions <- predict(ad_fit_ll, newdata = pred_grid, sims = 500)
+    mean_ll <- apply(ll_predictions, 1, mean)
+    sd_ll <- apply(ll_predictions, 1, sd)
+    ll_predictions_summ[[i]] <- cbind(mean_ll, sd_ll)
+    ll_index[[i]] <- get_index_sims(ll_predictions)
   }
+
   print(paste0("species ", i, " of ", nrow(species), " complete"))
 }
 
-#saveRDS(null_predictions,"output/null_predictions.rds") # too large to save
-#saveRDS(ll_predictions,"output/ll_predictions.rds") # too large to save
-saveRDS(null_index,"output/null_index.rds")
-saveRDS(ll_index,"output/ll_index.rds")
+saveRDS(null_predictions_summ,"output/null_predictions_summary.rds")
+saveRDS(ll_predictions_summ,"output/ll_predictions_summary.rds")
+saveRDS(null_index,"output/null_index_range15_sigma10.rds")
+saveRDS(ll_index,"output/ll_index_range15_sigma10.rds")
 
 
 #---- plot results
-null_index = readRDS("output/null_index.rds")
-ll_index = readRDS("output/ll_index.rds")
+null_index = readRDS("output/null_index_range15_sigma10.rds")
+ll_index = readRDS("output/ll_index_range15_sigma10.rds")
 
 null_df = bind_rows(null_index)
 null_df$species = c(t(replicate(species$common_name,n=length(2003:2018))))
