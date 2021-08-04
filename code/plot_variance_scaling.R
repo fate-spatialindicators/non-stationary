@@ -62,6 +62,7 @@ tweedie_p <- purrr::map_dfr(models_ll, get_tweedie_power)
 tweedie_phi <- purrr::map_dfr(models_ll, get_tweedie_phi)
 rho <- purrr::map_dfr(models_ll, get_rho)
 rho_null <- purrr::map_dfr(models_null, get_rho)
+  names(rho_null) <- "rho_null"
 sp_names <- tibble(common_name = species$common_name)
 out <- bind_cols(sp_names, b_eps, tweedie_p, tweedie_phi, rho, rho_null)
 
