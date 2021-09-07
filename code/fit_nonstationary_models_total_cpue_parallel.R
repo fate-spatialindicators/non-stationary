@@ -85,11 +85,11 @@ fit_models_ar1 <- function(sub) {
 
 refit_model_if_needed <- function(m) {
   if (!is.na(m[[1]])) {
-    if (max(m$gradients) > 0.01) {
+    if (max(abs(m$gradients)) > 0.01) {
       m <- tryCatch({
         sdmTMB::run_extra_optimization(m,
           nlminb_loops = 1L,
-          newton_steps = 1L
+          newton_loops = 1L
         )
       }, error = function(e) m)
     }
