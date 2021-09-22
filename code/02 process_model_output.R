@@ -14,20 +14,20 @@ for(i in 1:nrow(species)){
 
   comm_name = species$common_name[i]
 
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
+  load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1.RData"))
 
   df = data.frame(name = comm_name,
     model = c("adult", "adult"),
     loglinear = c(FALSE,TRUE))
-  df$aic = NA
+  df$pred_dens = NA
   df$trend = NA
   df$trend_se = NA
 
   if(class(ad_fit)!="try-error") {
-    df$aic[1] = AIC(ad_fit)
+    df$pred_dens[1] = ad_fit$sum_loglik
   }
   if(class(ad_fit_ll)!="try-error") {
-    df$aic[2] = AIC(ad_fit_ll)
+    df$pred_dens[2] = AIC(ad_fit_ll)
     df$trend[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
     df$trend_se[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
   }

@@ -10,7 +10,7 @@ plan(multisession, workers = 8) # or just specify # cores manually
 if (!dir.exists("output")) dir.create("output")
 
 # 15 -> ~ 600 knots; 20 -> 389 knots; 25 -> 294 knots; 30 -> 221 knots
-n_cutoff <- 20
+n_cutoff <- 25
 species <- read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
 names(species) <- tolower(names(species))
 species <- dplyr::rename(species,
@@ -31,26 +31,26 @@ dat$depth_scaled <- temp / sd(grid$depth)
 dat$depth_scaled2 <- dat$depth_scaled^2
 dat$time <- as.numeric(dat$year) - floor(mean(unique(as.numeric(dat$year))))
 
-# spatial + spatiotemporal:
-fit_models <- function(sub) {
-  spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
-  ad_fit <- tryCatch({
-    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-           data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
-           control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
-    )}, error = function(e) NA)
-  #ad_fit <- refit_model_if_needed(ad_fit)
-  ad_fit_ll <- tryCatch({
-    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-           data = sub, time = "year", spde = spde,
-           family = tweedie(link = "log"), epsilon_predictor = "time",
-           control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
-    )}, error = function(e) NA)
-  #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
-  save(ad_fit, ad_fit_ll,
-       file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
-  )
-}
+# # spatial + spatiotemporal:
+# fit_models <- function(sub) {
+#   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
+#   ad_fit <- tryCatch({
+#     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+#            data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
+#            control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
+#     )}, error = function(e) NA)
+#   #ad_fit <- refit_model_if_needed(ad_fit)
+#   ad_fit_ll <- tryCatch({
+#     sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+#            data = sub, time = "year", spde = spde,
+#            family = tweedie(link = "log"), epsilon_predictor = "time",
+#            control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1)
+#     )}, error = function(e) NA)
+#   #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
+#   save(ad_fit, ad_fit_ll,
+#        file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_all_models.RData")
+#   )
+# }
 
 #split(dat, dat$scientific_name) %>%
 #  furrr::future_walk(fit_models)
@@ -60,28 +60,40 @@ fit_models <- function(sub) {
 fit_models_ar1 <- function(sub) {
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
   ad_fit <- tryCatch({
-    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-           fields = "AR1", include_spatial = FALSE,
-           data = sub, time = "year", spde = spde, family = tweedie(link = "log"),
+    sdmTMB_cv(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+           fields = "AR1",
+           include_spatial = FALSE,
+           data = sub,
+           time = "year",
+           spde = spde,
+           family = tweedie(link = "log"),
+           k_folds = 10,
            control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
            priors = sdmTMBpriors(
              phi = halfnormal(0, 10),
              tweedie_p = normal(1.5, 2),
-             ar1_rho = normal(0, 0.99),
+             ar1_rho = normal(0.5, 0.1),
              matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
     )}, error = function(e) NA)
   #ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
-    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
-           data = sub, time = "year", spde = spde,
-           fields = "AR1", include_spatial = FALSE,
-           family = tweedie(link = "log"), epsilon_predictor = "time",
-           control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
-           priors = sdmTMBpriors(
-             phi = halfnormal(0, 10),
-             tweedie_p = normal(1.5, 2),
-             ar1_rho = normal(0, 0.99),
-             matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
+    sdmTMB_cv(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+              fields = "AR1",
+              include_spatial = FALSE,
+              data = sub,
+              time = "year",
+              spde = spde,
+              family = tweedie(link = "log"),
+              k_folds = 10,
+              epsilon_predictor = "time",
+              control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1,
+                                      lower = list(b_epsilon = -1),
+                                      upper = list(b_epsilon = 1)),
+              priors = sdmTMBpriors(
+                phi = halfnormal(0, 10),
+                tweedie_p = normal(1.5, 2),
+                ar1_rho = normal(0.5, 0.1),
+                matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
     )}, error = function(e) NA)
   #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
