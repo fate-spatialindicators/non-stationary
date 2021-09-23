@@ -14,7 +14,7 @@ for(i in 1:nrow(species)){
 
   comm_name = species$common_name[i]
 
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1.RData"))
+  load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1_priors.RData"))
 
   df = data.frame(name = comm_name,
     model = c("adult", "adult"),
@@ -27,9 +27,16 @@ for(i in 1:nrow(species)){
     df$pred_dens[1] = ad_fit$sum_loglik
   }
   if(class(ad_fit_ll)!="try-error") {
-    df$pred_dens[2] = AIC(ad_fit_ll)
-    df$trend[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
-    df$trend_se[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
+    df$pred_dens[2] = ad_fit_ll$sum_loglik
+    df_trend = data.frame(trend = rep(NA, length(ad_fit_ll$models)),
+                          trend_se = rep(NA, length(ad_fit_ll$models)))
+    for(k in 1:length(ad_fit_ll$models)) {
+      df_trend$trend[k] = ad_fit_ll$models[[k]]$sd_report$value[which(names(ad_fit_ll$models[[k]]$sd_report$value) == "b_epsilon")]
+      df_trend$trend_se[k] = ad_fit_ll$models[[k]]$sd_report$sd[which(names(ad_fit_ll$models[[k]]$sd_report$value) == "b_epsilon")]
+    }
+    df_trend$inv_var = 1/df_trend$trend_se^2
+    df$trend[2] = sum(df_trend$trend * df_trend$inv_var) / sum(df_trend$inv_var)
+    df$trend_se[2] = sqrt(1/sum(df_trend$inv_var))
   }
 
   if(i==1) {
@@ -39,19 +46,32 @@ for(i in 1:nrow(species)){
   }
 }
 
+# summarize the predictive density diffs
+dens_summary = dplyr::group_by(df_all, name) %>%
+  dplyr::summarize(max_diff = max(pred_dens,na.rm=T),
+                   diff_dens = max_diff - pred_dens[which(loglinear==TRUE)]) %>%
+  dplyr::arrange(name) %>%
+  as.data.frame()
+write.csv(dens_summary, "output/pred_dens_summary.csv")
 
+df_all = left_join(df_all, dens_summary)
+df_all$model = ifelse(df_all$diff_dens == 0, "trend", "no trend")
 # look at coefficients for adult models
 jpeg("plots/Trend_summaries.jpeg")
 
-p1 = dplyr::filter(df_all, loglinear==TRUE, model=="adult", name %in% c("","thornyhead, longspine","sole, deepsea","skate, sandpaper")==FALSE) %>%
-  ggplot(aes(name,trend)) +
-  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),col="darkblue",size=0.8) +
+p1 = dplyr::filter(df_all, loglinear==TRUE) %>%
+  ggplot(aes(name,trend, col=model)) +
+  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),size=0.8,alpha=0.6) +
   xlab("Species") + ylab("Trend in adult spatiotemporal sd (+/- 2SE)") +
   geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
   coord_flip() +
   theme_bw()
 p1
 dev.off()
+
+
+
+
 
 df = dplyr::filter(df_all, !is.na(trend)) %>%
   dplyr::rename(common_name = name)
@@ -62,9 +82,9 @@ jpeg("plots/Trend_depletion.jpeg")
 ggplot(dplyr::filter(df, common_name %in% c("","thornyhead, longspine","sole, deepsea")==FALSE), aes(depletion,trend)) +
   geom_pointrange(aes(ymin=trend-trend_se,ymax=trend+trend_se)) +
   #geom_point() +
-  geom_smooth(method="lm") +
-  xlim(0.25,1) +
-  ylim(-0.25,0.11)
+  geom_smooth(method="lm")# +
+  #xlim(0.25,1) +
+  #ylim(-0.25,0.11)
 dev.off()
 
 p2 = dplyr::filter(df_all, loglinear==TRUE, model!="adult", name!="Longspine thornyhead") %>%
@@ -93,153 +113,7 @@ p3
 dev.off()
 
 
-aic_summary = dplyr::group_by(df_all, name, model) %>%
-  dplyr::summarize(min_aic = min(aic,na.rm=T),
-    diff_aic = aic[which(loglinear==TRUE)] - min_aic) %>%
-  dplyr::arrange(model, name) %>%
-  as.data.frame()
-write.csv(aic_summary, "output/aic_summary.csv")
-
-
-
-# Species of interest
-species = read.csv("survey_data/species_list.csv")
-names(species) = tolower(names(species))
-species = dplyr::rename(species,
-                        common_name = common.name,
-                        scientific_name = scientific.name)
-species$coef = NA
-species$se = NA
-species_df = species
-
-for(i in 1:nrow(species_df)){
-  comm_name = species_df$common_name[i]
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_all_models.RData"))
-  indx = grep("b_epsilon_logit", names(ad_fit_ll$sd_report$value))
-  species_df$coef[i] = ad_fit_ll$sd_report$value[indx]
-  species_df$se[i] = ad_fit_ll$sd_report$sd[indx]
-}
-
-p4 = dplyr::filter(species_df,
-              species %in% c("Greenspotted rockfish","Longspine thornyhead","Deepsea sole")==FALSE) %>%
-  ggplot(aes(species,coef)) +
-  geom_pointrange(aes(ymin=coef-2*se, ymax=coef+2*se),size=0.8,alpha=0.8,
-                  position = position_dodge(width = 0.9)) +
-  xlab("Species") +
-  ylab("Trend in spatiotemporal sd (+/- 2SE)") +
-  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
-  coord_flip() +
-  theme_bw() +
-  scale_color_viridis(discrete=TRUE,end=0.8)
 
 
 
 
-# Presence absence models
-species = read.csv("survey_data/species_list.csv")
-names(species) = tolower(names(species))
-species = dplyr::rename(species,
-                        common_name = common.name,
-                        scientific_name = scientific.name)
-
-for(i in 1:nrow(species)){
-  print(i)
-  comm_name = species$common_name[i]
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_presence_models.RData"))
-
-  df = data.frame(name = comm_name,
-                  model = c("adult", "adult"),
-                  loglinear = c(FALSE,TRUE))
-  df$aic = NA
-  df$trend = NA
-  df$trend_se = NA
-
-  if(class(ad_fit)!="try-error") {
-    df$aic[1] = AIC(ad_fit)
-  }
-  if(class(ad_fit_ll)!="try-error") {
-    df$aic[2] = AIC(ad_fit_ll)
-    df$trend[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
-    df$trend_se[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
-  }
-  if(i==1) {
-    df_all = df
-  } else {
-    df_all = rbind(df_all, df)
-  }
-}
-
-# plot trend coefficient for presence-absence models
-p3 = dplyr::filter(df_all, loglinear==TRUE) %>%
-  ggplot(aes(name,trend)) +
-  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),size=0.8,alpha=0.8,
-                  position = position_dodge(width = 0.9)) +
-  xlab("Species") +
-  ylab("Trend in total presence-absence spatiotemporal sd (+/- 2SE)") +
-  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
-  ylim(-5,5) +
-  coord_flip() +
-  theme_bw() +
-  scale_color_viridis(discrete=TRUE,end=0.8)
-
-aic_summary = dplyr::group_by(df_all, name, model) %>%
-  dplyr::summarize(min_aic = min(aic,na.rm=T),
-                   diff_aic = aic[which(loglinear==TRUE)] - min_aic) %>%
-  dplyr::arrange(model, name) %>%
-  as.data.frame()
-write.csv(aic_summary, "output/aic_summary_presence.csv")
-
-
-# Positivie models
-species = read.csv("survey_data/species_list.csv")
-names(species) = tolower(names(species))
-species = dplyr::rename(species,
-                        common_name = common.name,
-                        scientific_name = scientific.name)
-
-for(i in 1:nrow(species)){
-  print(i)
-  comm_name = species$common_name[i]
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_positive_models.RData"))
-
-  df = data.frame(name = comm_name,
-                  model = c("adult", "adult"),
-                  loglinear = c(FALSE,TRUE))
-  df$aic = NA
-  df$trend = NA
-  df$trend_se = NA
-
-  if(class(ad_fit)!="try-error") {
-    df$aic[1] = AIC(ad_fit)
-  }
-  if(class(ad_fit_ll)!="try-error") {
-    df$aic[2] = AIC(ad_fit_ll)
-    df$trend[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
-    df$trend_se[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "b_epsilon_logit")]
-  }
-  if(i==1) {
-    df_all = df
-  } else {
-    df_all = rbind(df_all, df)
-  }
-}
-
-# plot trend coefficient for presence-absence models
-p3 = dplyr::filter(df_all, loglinear==TRUE) %>%
-  ggplot(aes(name,trend)) +
-  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),size=0.8,alpha=0.8,
-                  position = position_dodge(width = 0.9)) +
-  xlab("Species") +
-  ylab("Trend in total positive spatiotemporal sd (+/- 2SE)") +
-  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
-  ylim(-5,5) +
-  coord_flip() +
-  theme_bw() +
-  scale_color_viridis(discrete=TRUE,end=0.8)
-
-aic_summary = dplyr::group_by(df_all, name, model) %>%
-  dplyr::summarize(min_aic = min(aic,na.rm=T),
-                   diff_aic = aic[which(loglinear==TRUE)] - min_aic) %>%
-  dplyr::arrange(model, name) %>%
-  as.data.frame()
-write.csv(aic_summary, "output/aic_summary_positive.csv")
