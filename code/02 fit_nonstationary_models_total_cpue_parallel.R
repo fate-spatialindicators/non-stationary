@@ -60,14 +60,13 @@ dat$time <- as.numeric(dat$year) - floor(mean(unique(as.numeric(dat$year))))
 fit_models_ar1 <- function(sub) {
   spde <- make_mesh(sub, c("lon", "lat"), cutoff = n_cutoff, type = "cutoff")
   ad_fit <- tryCatch({
-    sdmTMB_cv(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
            fields = "AR1",
            include_spatial = FALSE,
            data = sub,
            time = "year",
            spde = spde,
            family = tweedie(link = "log"),
-           k_folds = 10,
            control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
            priors = sdmTMBpriors(
              phi = halfnormal(0, 10),
@@ -77,14 +76,13 @@ fit_models_ar1 <- function(sub) {
     )}, error = function(e) NA)
   #ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
-    sdmTMB_cv(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
+    sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + year,
               fields = "AR1",
               include_spatial = FALSE,
               data = sub,
               time = "year",
               spde = spde,
               family = tweedie(link = "log"),
-              k_folds = 10,
               epsilon_predictor = "time",
               control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1,
                                       lower = list(b_epsilon = -1),
@@ -97,7 +95,7 @@ fit_models_ar1 <- function(sub) {
     )}, error = function(e) NA)
   #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,
-       file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1_priors_cv.RData")
+       file = paste0("output/", sub(" ", "_", sub$common_name[[1]]), "_ar1_priors.RData")
   )
 }
 

@@ -14,7 +14,7 @@ for(i in 1:nrow(species)){
 
   comm_name = species$common_name[i]
 
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1_priors.RData"))
+  load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1_priors_cv.RData"))
 
   df = data.frame(name = comm_name,
     model = c("adult", "adult"),
@@ -52,12 +52,12 @@ dens_summary = dplyr::group_by(df_all, name) %>%
                    diff_dens = max_diff - pred_dens[which(loglinear==TRUE)]) %>%
   dplyr::arrange(name) %>%
   as.data.frame()
-write.csv(dens_summary, "output/pred_dens_summary.csv")
+write.csv(dens_summary, "output/pred_dens_summary_cv.csv")
 
 df_all = left_join(df_all, dens_summary)
 df_all$model = ifelse(df_all$diff_dens == 0, "trend", "no trend")
 # look at coefficients for adult models
-jpeg("plots/Trend_summaries.jpeg")
+jpeg("plots/Trend_summaries_cv.jpeg")
 
 p1 = dplyr::filter(df_all, loglinear==TRUE) %>%
   ggplot(aes(name,trend, col=model)) +
