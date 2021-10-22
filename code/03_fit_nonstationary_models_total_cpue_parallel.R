@@ -72,7 +72,7 @@ fit_models_ar1 <- function(sub) {
              phi = halfnormal(0, 10),
              tweedie_p = normal(1.5, 2),
              ar1_rho = normal(0.5, 0.1),
-             matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
+             matern_st = pc_matern(range_gt = 10, sigma_lt = 5))
     )}, error = function(e) NA)
   #ad_fit <- refit_model_if_needed(ad_fit)
   ad_fit_ll <- tryCatch({
@@ -91,7 +91,7 @@ fit_models_ar1 <- function(sub) {
                 phi = halfnormal(0, 10),
                 tweedie_p = normal(1.5, 2),
                 ar1_rho = normal(0.5, 0.1),
-                matern_st = pc_matern(range_gt = 10, sigma_lt = 1))
+                matern_st = pc_matern(range_gt = 10, sigma_lt = 5))
     )}, error = function(e) NA)
   #ad_fit_ll <- refit_model_if_needed(ad_fit_ll)
   save(ad_fit, ad_fit_ll,

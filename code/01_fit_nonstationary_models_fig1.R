@@ -25,7 +25,7 @@ dat$lat = dat$latitude_dd/1000
 #dat$year = as.numeric(substr(dat$date_yyyymmdd,1,4))
 
 dat = dplyr::filter(dat, scientific_name %in% c("Eopsetta jordani",
-  "Sebastolobus altivelis","Sebastes crameri","Sebastes jordani"))
+  "Sebastes alutus","Sebastes crameri","Sebastes jordani"))
 
 # set up df of cells surveyed. all we really care about are epsilon_st by year, so depth can be 0
 unique_coords = strsplit(unique(paste(floor(dat$lon), floor(dat$lat))), " ")
@@ -40,12 +40,16 @@ for(i in 1:length(unique(dat$scientific_name))) {
 
   sub = dplyr::filter(dat, scientific_name==unique(dat$scientific_name)[i]) %>%
     dplyr::filter(cpue_kg_km2>0)
-  spde <- make_mesh(sub, c("lon", "lat"), cutoff = 10)
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = 25)
   sub$depth_scaled = as.numeric(scale(sub$depth_m))
   sub$depth_scaled2 = sub$depth_scaled^2
 
   m = sdmTMB(cpue_kg_km2 ~ 0 + depth_scaled + depth_scaled2 + as.factor(year),
-    data = sub, time = "year", spde = spde, family = Gamma(link = "log"))
+    data = sub,
+    time = "year",
+    spde = spde,
+    family = Gamma(link = "log")
+  )
   models[[i]] = m
 
   # calculate residuals
@@ -57,9 +61,9 @@ for(i in 1:length(unique(dat$scientific_name))) {
     sub_yr = dplyr::filter(grid_dat, year==unique(dat$year)[y]) %>% dplyr::select(resid)
     m = matrix(sample(sub_yr$resid, size = length(sub_yr$resid)*1000, replace=TRUE), 1000, length(sub_yr$resid))
     sds = apply(m,1,sd)
-    sp_df$low[y] = quantile(log(sds),0.025)
-    sp_df$mean[y] = mean(log(sds))
-    sp_df$hi[y] = quantile(log(sds),0.975)
+    sp_df$low[y] = quantile(sds,0.025)
+    sp_df$mean[y] = mean(sds)
+    sp_df$hi[y] = quantile(sds,0.975)
   }
   if(i==1) {
     df = sp_df
@@ -71,24 +75,8 @@ for(i in 1:length(unique(dat$scientific_name))) {
 # bring in common names
 df$common_name = ""
 df$common_name[which(df$species=="Eopsetta jordani")] = "Petrale sole"
-df$common_name[which(df$species=="Sebastolobus altivelis")] = "Longspine thornyhead"
+df$common_name[which(df$species=="Sebastes alutus")] = "Pacific ocean perch"
 df$common_name[which(df$species=="Sebastes crameri")] = "Darkblotched rockfish"
 df$common_name[which(df$species=="Sebastes jordani")] = "Shortbelly rockfish"
 
-
-g1 = df %>%
-ggplot(aes(year, mean)) +
-  geom_ribbon(aes(ymin=low,ymax=hi),alpha=0.3,fill="darkblue") +
-  geom_point(aes(year,mean),col="darkblue",size=2) +
-  geom_line(col="darkblue") +
-  facet_wrap(~common_name,scale="free_y") +
-  theme_sleek() +
-  xlab("Year") + ylab(expression(paste("Ln(",sigma,") of residuals")))
-
-pdf("plots/figure_S1.pdf")
-g1
-dev.off()
-
-jpeg("plots/figure_S1.jpeg")
-g1
-dev.off()
+saveRDS(df, "plots/output_figure_1.rds")

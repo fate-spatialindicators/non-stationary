@@ -97,24 +97,8 @@ for(i in 1:nrow(species)){
   }
 }
 
-# pull in the predictive densities for colors
-pred_cv = read.csv("output/pred_dens_summary_cv.csv")
-# look at coefficients for adult models
-df_all = left_join(df_all, pred_cv)
-df_all$model = ifelse(df_all$diff_dens==0, "trend", "no trend")
-jpeg("plots/Trend_summaries.jpeg")
+write.csv(df_all, "output/pred_dens_summary.csv")
 
-p1 = dplyr::filter(df_all, loglinear==TRUE, name != c("sole, deepsea")) %>%
-  ggplot(aes(name,trend, col=model)) +
-  geom_pointrange(aes(ymin=trend-2*trend_se, ymax=trend+2*trend_se),size=0.8,alpha=0.6) +
-  xlab("Species") + ylab("Trend in adult spatiotemporal sd (+/- 2SE)") +
-  geom_hline(aes(yintercept=0),col="red",alpha=0.6) +
-  #coord_cartesian(ylim=c(-0.25,0.25)) +
-  coord_flip() +
-  theme_bw()
-
-p1
-dev.off()
 
 
 
