@@ -40,7 +40,7 @@ for(i in 1:length(unique(dat$scientific_name))) {
 
   sub = dplyr::filter(dat, scientific_name==unique(dat$scientific_name)[i]) %>%
     dplyr::filter(cpue_kg_km2>0)
-  spde <- make_mesh(sub, c("lon", "lat"), cutoff = 25)
+  spde <- make_mesh(sub, c("lon", "lat"), cutoff = 20)
   sub$depth_scaled = as.numeric(scale(sub$depth_m))
   sub$depth_scaled2 = sub$depth_scaled^2
 

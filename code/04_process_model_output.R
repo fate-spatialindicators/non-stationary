@@ -7,55 +7,55 @@ library(viridis)
 # Process cross-validation summaries
 ##################################################
 # Species of interest
-species = read.csv("survey_data/species_list.csv")
-names(species) = tolower(names(species))
-species = dplyr::rename(species,
-  common_name = common.name,
-  scientific_name = scientific.name)
-
-for(i in 1:nrow(species)){
-
-  comm_name = species$common_name[i]
-
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1_priors_cv.RData"))
-
-  df = data.frame(name = comm_name,
-    model = c("adult", "adult"),
-    loglinear = c(FALSE,TRUE))
-  df$pred_dens = NA
-  df$trend = NA
-  df$trend_se = NA
-
-  if(class(ad_fit)!="try-error") {
-    df$pred_dens[1] = ad_fit$sum_loglik
-  }
-  if(class(ad_fit_ll)!="try-error") {
-    df$pred_dens[2] = ad_fit_ll$sum_loglik
-    df_trend = data.frame(trend = rep(NA, length(ad_fit_ll$models)),
-                          trend_se = rep(NA, length(ad_fit_ll$models)))
-    for(k in 1:length(ad_fit_ll$models)) {
-      df_trend$trend[k] = ad_fit_ll$models[[k]]$sd_report$value[which(names(ad_fit_ll$models[[k]]$sd_report$value) == "b_epsilon")]
-      df_trend$trend_se[k] = ad_fit_ll$models[[k]]$sd_report$sd[which(names(ad_fit_ll$models[[k]]$sd_report$value) == "b_epsilon")]
-    }
-    df_trend$inv_var = 1/df_trend$trend_se^2
-    df$trend[2] = sum(df_trend$trend * df_trend$inv_var) / sum(df_trend$inv_var)
-    df$trend_se[2] = sqrt(1/sum(df_trend$inv_var))
-  }
-
-  if(i==1) {
-    df_all = df
-  } else {
-    df_all = rbind(df_all, df)
-  }
-}
-
-# summarize the predictive density diffs
-dens_summary = dplyr::group_by(df_all, name) %>%
-  dplyr::summarize(max_diff = max(pred_dens,na.rm=T),
-                   diff_dens = max_diff - pred_dens[which(loglinear==TRUE)]) %>%
-  dplyr::arrange(name) %>%
-  as.data.frame()
-write.csv(dens_summary, "output/pred_dens_summary_cv.csv")
+# species = read.csv("survey_data/species_list.csv")
+# names(species) = tolower(names(species))
+# species = dplyr::rename(species,
+#   common_name = common.name,
+#   scientific_name = scientific.name)
+#
+# for(i in 1:nrow(species)){
+#
+#   comm_name = species$common_name[i]
+#
+#   load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1_priors_cv.RData"))
+#
+#   df = data.frame(name = comm_name,
+#     model = c("adult", "adult"),
+#     loglinear = c(FALSE,TRUE))
+#   df$pred_dens = NA
+#   df$trend = NA
+#   df$trend_se = NA
+#
+#   if(class(ad_fit)!="try-error") {
+#     df$pred_dens[1] = ad_fit$sum_loglik
+#   }
+#   if(class(ad_fit_ll)!="try-error") {
+#     df$pred_dens[2] = ad_fit_ll$sum_loglik
+#     df_trend = data.frame(trend = rep(NA, length(ad_fit_ll$models)),
+#                           trend_se = rep(NA, length(ad_fit_ll$models)))
+#     for(k in 1:length(ad_fit_ll$models)) {
+#       df_trend$trend[k] = ad_fit_ll$models[[k]]$sd_report$value[which(names(ad_fit_ll$models[[k]]$sd_report$value) == "b_epsilon")]
+#       df_trend$trend_se[k] = ad_fit_ll$models[[k]]$sd_report$sd[which(names(ad_fit_ll$models[[k]]$sd_report$value) == "b_epsilon")]
+#     }
+#     df_trend$inv_var = 1/df_trend$trend_se^2
+#     df$trend[2] = sum(df_trend$trend * df_trend$inv_var) / sum(df_trend$inv_var)
+#     df$trend_se[2] = sqrt(1/sum(df_trend$inv_var))
+#   }
+#
+#   if(i==1) {
+#     df_all = df
+#   } else {
+#     df_all = rbind(df_all, df)
+#   }
+# }
+#
+# # summarize the predictive density diffs
+# dens_summary = dplyr::group_by(df_all, name) %>%
+#   dplyr::summarize(max_diff = max(pred_dens,na.rm=T),
+#                    diff_dens = max_diff - pred_dens[which(loglinear==TRUE)]) %>%
+#   dplyr::arrange(name) %>%
+#   as.data.frame()
+# write.csv(dens_summary, "output/pred_dens_summary_cv.csv")
 
 
 ##################################################

@@ -18,6 +18,9 @@ pred = pred[which(duplicated(pred$new_name)==FALSE),]
 pred$new_name[which(is.na(pred$new_name))] = "Shortspine thornyhead"
 #x$name <- factor(x$name, levels = x$name[order(x$val)])
 
+top5_bottom5 = pred[c(1:5, (nrow(pred)-4):nrow(pred)),]
+saveRDS(top5_bottom5,"output/top5_bottom5.rds")
+
 pred$new_name <- factor(pred$new_name, levels = pred$new_name)
 # change order of factor levels
 
