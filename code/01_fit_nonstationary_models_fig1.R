@@ -25,7 +25,7 @@ dat$lat = dat$latitude_dd/1000
 #dat$year = as.numeric(substr(dat$date_yyyymmdd,1,4))
 
 dat = dplyr::filter(dat, scientific_name %in% c("Eopsetta jordani",
-  "Sebastes alutus","Sebastes crameri","Sebastes jordani"))
+  "Ophiodon elongatus","Sebastes crameri","Sebastes jordani"))
 
 # set up df of cells surveyed. all we really care about are epsilon_st by year, so depth can be 0
 unique_coords = strsplit(unique(paste(floor(dat$lon), floor(dat$lat))), " ")
@@ -75,8 +75,9 @@ for(i in 1:length(unique(dat$scientific_name))) {
 # bring in common names
 df$common_name = ""
 df$common_name[which(df$species=="Eopsetta jordani")] = "Petrale sole"
-df$common_name[which(df$species=="Sebastes alutus")] = "Pacific ocean perch"
+df$common_name[which(df$species=="Ophiodon elongatus")] = "Lingcod"
 df$common_name[which(df$species=="Sebastes crameri")] = "Darkblotched rockfish"
 df$common_name[which(df$species=="Sebastes jordani")] = "Shortbelly rockfish"
 
 saveRDS(df, "plots/output_figure_1.rds")
+

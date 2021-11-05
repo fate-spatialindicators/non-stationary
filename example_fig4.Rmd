@@ -1,8 +1,19 @@
+---
+title: "Untitled"
+author: "EW"
+date: "11/5/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 library(sdmTMB)
 library(dplyr)
 library(ggplot2)
 library(viridis)
+```
 
+```{r}
 # Species of interest
 species = read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
 names(species) = tolower(names(species))
@@ -29,17 +40,34 @@ pred_grid$time = as.numeric(pred_grid$year) - floor(mean(unique(as.numeric(pred_
 null_predictions = readRDS("output/null_predictions_summary.rds")
 ll_predictions = readRDS("output/ll_predictions_summary.rds")
 
+```
+
+
+This is just using darkblotched rockfish, and years 2003 - 2018 for comparison
+```{r}
 indx = which(species$species=="Darkblotched rockfish")
-
-# subset years to 2003 and 2018
-pred_grid = dplyr::filter(pred_grid, year %in%c(2003,2018))
-
 # get predictions for each model
   pred_grid$pred_ll = ll_predictions[[indx]][,1]
   pred_grid$pred_null = null_predictions[[indx]][,1]
+  # subset years to 2003 and 2018
+  pred_grid = dplyr::filter(pred_grid, year %in%c(2003,2018))
+```
 
+First we can make a plot of the absolute difference
 
+```{r}
+  # make plots of difference
+  g0 = pred_grid %>%
+    ggplot(aes(lon,lat,fill=pred_ll - pred_null)) +
+    geom_tile() +
+    scale_fill_gradient2() +
+    facet_grid(~year) +
+    coord_fixed() +
+    theme_bw()
+print(g0)
+```
 
+```{r}
   # calculate de-meaned data frame, subtracting off spatial mean for each cell
   pred_grid <- dplyr::group_by(pred_grid, cell) %>%
     dplyr::mutate(ll_mean = mean(pred_ll),
@@ -58,26 +86,13 @@ pred_grid = dplyr::filter(pred_grid, year %in%c(2003,2018))
   pred_grid = rbind(pred_grid, pred_grid2)
   pred_grid$model = paste0(pred_grid$year, pred_grid$type)
 
-  library(ggplot2)
 # first version: this plots fields that are spatially de-meaned
-  g0 =  ggplot(pred_grid, aes(lon,lat,fill=est)) +
+  g2 =  ggplot(pred_grid, aes(lon,lat,fill=est)) +
     geom_tile() +
     scale_fill_gradient2() +
     facet_grid(year~type) +
     coord_fixed() +
     theme_bw()
+print(g2)
+```
 
-  # second version: this subtracts off the mean for each year / model
-  g1 =  dplyr::group_by(pred_grid, model, year) %>%
-    dplyr::mutate(est = est - mean(est)) %>%
-  ggplot(aes(lon,lat,fill=est)) +
-    geom_tile() +
-    scale_fill_gradient2() +
-    facet_grid(year~type) +
-    coord_fixed() +
-    theme_bw()
-
-
-  pdf("plots/Figure_4.pdf")
-  g1
-  dev.off()
