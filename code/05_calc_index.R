@@ -51,11 +51,27 @@ for(i in 1:nrow(species)){
     sd_ll <- apply(ll_predictions, 1, sd)
     ll_predictions_summ[[i]] <- cbind(mean_ll, sd_ll)
     ll_index[[i]] <- get_index_sims(ll_predictions)
+
+    # also calculate epsilon_st
+    pred_null <- predict(ad_fit, newdata = pred_grid)
+    pred_null$common_name = species$common_name[[i]]
+    pred_null$species = species$scientific_name[[i]]
+    pred_null$model = "Null"
+    pred_ll <- predict(ad_fit_ll, newdata = pred_grid)
+    pred_ll$common_name = species$common_name[[i]]
+    pred_ll$species = species$scientific_name[[i]]
+    pred_ll$model = "Log-linear"
+    if(i==1) {
+      df_out = rbind(pred_null, pred_ll)
+    } else {
+      df_out = rbind(df_out, rbind(pred_null, pred_ll))
+    }
   }
 
   print(paste0("species ", i, " of ", nrow(species), " complete"))
 }
 
+saveRDS(df_out, "output/predictions_all.rds")
 saveRDS(null_predictions_summ,"output/null_predictions_summary.rds")
 saveRDS(ll_predictions_summ,"output/ll_predictions_summary.rds")
 saveRDS(null_index,"output/null_index_range15_sigma10.rds")
