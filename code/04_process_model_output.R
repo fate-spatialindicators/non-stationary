@@ -80,6 +80,7 @@ for(i in 1:nrow(species)){
   df$pred_dens = NA
   df$trend = NA
   df$trend_se = NA
+  df$sigma = NA
 
   #if(class(ad_fit)!="try-error") {
   #  df$pred_dens[1] = ad_fit$sum_loglik
@@ -88,6 +89,7 @@ for(i in 1:nrow(species)){
     #df$pred_dens[2] = ad_fit_ll$sum_loglik
     df$trend[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "b_epsilon")]
     df$trend_se[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "b_epsilon")]
+    df$sigma[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "sigma_E")[1]]
   }
 
   if(i==1) {

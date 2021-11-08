@@ -37,7 +37,7 @@ new_names = read.csv("data/name_change.csv") %>%
 joined_df = dplyr::left_join(joined_df, new_names)
 joined_df$new_name[which(is.na(joined_df$new_name))] = "Shortspine thornyhead"
 
-pdf("plots/Figure_S3_biomass_index_log.pdf")
+pdf("plots/Figure_S4_biomass_index_log.pdf")
 ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
   geom_line() +
   geom_ribbon(aes(ymin = log(lwr), ymax = log(upr)), alpha=0.4, colour = NA) +
@@ -94,7 +94,7 @@ new_names = read.csv("data/name_change.csv") %>%
 df = dplyr::left_join(df, new_names)
 df$new_name[which(is.na(df$new_name))] = "Shortspine thornyhead"
 
-pdf("plots/Figure_S4_ratio.pdf")
+pdf("plots/Figure_S5_ratio.pdf")
 ggplot(df, aes(year, ratio,group=new_name)) +
   geom_line() +
   facet_wrap(~ new_name, scale="free_y", ncol = 5) +
@@ -109,7 +109,7 @@ ggplot(df, aes(year, ratio,group=new_name)) +
 dev.off()
 
 
-pdf("plots/Figure_S5_ratio_se.pdf")
+pdf("plots/Figure_S6_ratio_se.pdf")
 ggplot(df, aes(year, ratio_se,group=new_name)) +
   geom_line() +
   facet_wrap(~ new_name, scale="free_y", ncol = 5) +
