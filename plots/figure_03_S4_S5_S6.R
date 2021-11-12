@@ -39,8 +39,8 @@ joined_df$new_name[which(is.na(joined_df$new_name))] = "Shortspine thornyhead"
 
 pdf("plots/Figure_S4_biomass_index_log.pdf")
 ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
-  geom_line() +
-  geom_ribbon(aes(ymin = log(lwr), ymax = log(upr)), alpha=0.4, colour = NA) +
+  geom_line(alpha=0.5) +
+  geom_ribbon(aes(ymin = log(lwr), ymax = log(upr)), alpha=0.2, colour = NA) +
   facet_wrap(~ new_name, scale="free_y", ncol = 5) +
   theme_bw() +
   ylab("Ln biomass index (+/- 2SE)") +
@@ -53,7 +53,9 @@ ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
         legend.key.size = unit(0.3, "cm"),
         legend.text=element_text(size=rel(0.7)),
         legend.title=element_text(size=rel(0.8))) +
-  xlab("")
+  xlab("") +
+  scale_fill_viridis(discrete=TRUE,end=0.8) +
+  scale_color_viridis(discrete=TRUE,end=0.8)
 dev.off()
 
 joined_df$model = as.factor(joined_df$model)
@@ -62,23 +64,29 @@ top5_bottom5 = readRDS("output/top5_bottom5.rds")
 
 sub_df = dplyr::filter(joined_df, new_name %in% top5_bottom5$new_name)
 
-pdf("plots/Figure_3_biomass_index_top5.pdf")
+# order based on species
+sub_df$new_name = factor(sub_df$new_name, levels = c("Splitnose rockfish","Lingcod","Slender sole","Petrale sole","Darkblotched rockfish","Dover sole",
+                                                     "Spotted ratfish","Rex sole","Longnose skate","Sandpaper skate"))
+
+pdf("plots/Figure_3_biomass_index_top5.pdf",height = 7,width = 9)
 ggplot(sub_df, aes(year, log_est, fill=model, col=model, group=model)) +
-  geom_line() +
+  geom_line(alpha=0.5) +
   geom_ribbon(aes(ymin = log(lwr), ymax = log(upr)), alpha=0.2, colour = NA) +
-  facet_wrap(~ new_name, scale="free_y") +
+  facet_wrap(~ new_name, scale="free_y",nrow=2) +
   theme_bw() +
   ylab("Ln biomass index (+/- 2SE)") +
   theme(strip.background =element_rect(fill="white")) +
   theme(strip.text.x = element_text(size = 6),
         axis.text.x = element_text(size=5, angle = 90),
         axis.text.y = element_text(size=5),
-        legend.position = c(1, 0),
         legend.justification = c(1, 0),
         legend.key.size = unit(0.3, "cm"),
         legend.text=element_text(size=rel(0.7)),
-        legend.title=element_text(size=rel(0.8))) +
-  xlab("")
+        legend.title=element_text(size=rel(0.8)),
+        legend.position = c(0.98, 0.37)) +
+  xlab("") +
+  scale_fill_viridis(discrete=TRUE,end=0.8) +
+  scale_color_viridis(discrete=TRUE,end=0.8)
 dev.off()
 
 df = null_df[,c("year","est","species","se")]
