@@ -37,6 +37,7 @@ new_names = read.csv("data/name_change.csv") %>%
 joined_df = dplyr::left_join(joined_df, new_names)
 joined_df$new_name[which(is.na(joined_df$new_name))] = "Shortspine thornyhead"
 
+joined_df$new_name[which(joined_df$new_name == "Pacific grenadiers")] = "Pacific grenadier"
 pdf("plots/Figure_S4_biomass_index_log.pdf")
 ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
   geom_line(alpha=0.5) +

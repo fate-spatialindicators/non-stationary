@@ -2,6 +2,11 @@ library(sdmTMB)
 library(dplyr)
 library(ggplot2)
 library(viridis)
+library(grid)
+library(gridExtra)
+library(cowplot)
+library(egg)
+library(ggpubr)
 
 # Species of interest
 species = read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
@@ -39,9 +44,12 @@ pred_grid$pred_null_se = null_predictions[[indx]][,2]
 # subset years to 2003 and 2018
 pred_grid = dplyr::filter(pred_grid, year %in%c(2003,2018))
 
-pred_grid = dplyr::group_by(pred_grid, year) %>%
-  dplyr::mutate(pred_ll_mean = (pred_ll_mean) - mean(pred_ll_mean),
-                pred_null_mean = (pred_null_mean) - mean(pred_null_mean))
+# commented out -- but the de-meaning is providing a geometric mean
+# pred_grid = dplyr::group_by(pred_grid, year) %>%
+#   dplyr::mutate(pred_ll_mean = (pred_ll_mean) - mean(pred_ll_mean),
+#                 pred_null_mean = (pred_null_mean) - mean(pred_null_mean))
+#
+#
 
 # 2 data frames, one for diff in means, one for diff in ses
 diff_mean = dplyr::group_by(pred_grid, year, cell) %>%
@@ -58,7 +66,7 @@ g1 = diff_mean %>%
   scale_fill_gradient2(low="red",high="blue",midpoint=1, name="Ratio of means") +
   #scale_fill_continuous(name="Ratio of means") +
   #scale_fill_gradient2(high="blue",midpoint=0, name="Ratio of means") +
-  facet_wrap(~year) +
+  facet_grid(~year,space="free") +
   coord_fixed() +
   theme_bw() +
   xlab("") + ylab("") +
@@ -68,22 +76,36 @@ g2 = diff_se %>%
   ggplot(aes(lon,lat,fill=(diff))) +
   geom_tile() +
   scale_fill_gradient2(low="red",high="blue",midpoint=1, name="Ratio of SEs") +
-  facet_wrap(~year) +
+  facet_grid(~year,space="free") +
   coord_fixed() +
   theme_bw() +
   xlab("") + ylab("") +
   theme(strip.background =element_rect(fill="white"))
 
-library(grid)
-library(gridExtra)
-library(cowplot)
-library(egg)
-library(ggpubr)
+#4448.492 is the cutoff at 40 deg 10 min (40.16667)
+g3 = g1 + ylim(4448.492,5400) + xlim(300,450)
+g4 = g2 + ylim(4448.492,5400) + xlim(300,450)
+
+
+pdf("plots/Figure_S7.pdf")
+gA <- ggplotGrob(g1)
+gB <- ggplotGrob(g2)
+h0 = annotate_figure(rbind(gA, gB),
+                     left = textGrob("Northings", rot = 90, vjust = 13, gp = gpar(cex = 1)),
+                     bottom = textGrob("Eastings", hjust=1,vjust = -1,gp = gpar(cex =1)))
+h0
+dev.off()
+
 #g0 = cowplot::plot_grid(g1,g2,nrow=2)
-g0=egg::ggarrange(g1,g2,nrow=2)
-pdf("plots/Figure_4_mean_cutoff_b.pdf", height = 7, width=7)
-h0 = annotate_figure(g0,
-                     left = textGrob("Latitude", rot = 90, vjust = 13, gp = gpar(cex = 1)),
-                     bottom = textGrob("Longitude", hjust=1,vjust = -1,gp = gpar(cex =1)))
+#g0=egg::ggarrange(g1,g2,nrow=2)
+g3 <- g3 + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+g4 <- g4 + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+pdf("plots/Figure_4.pdf")
+gA <- ggplotGrob(g3)
+gB <- ggplotGrob(g4)
+h0 = annotate_figure(rbind(gA, gB),
+                     left = textGrob("Northings", rot = 90, vjust = 13, gp = gpar(cex = 1)),
+                     bottom = textGrob("Eastings", hjust=1,vjust = -1,gp = gpar(cex =1)))
 h0
 dev.off()
