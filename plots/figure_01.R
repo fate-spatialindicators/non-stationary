@@ -6,7 +6,7 @@ library(viridisLite)
 df = readRDS("plots/output_figure_1.rds")
 my_col = viridis(1, end=0.8)
 
-pdf("plots/Figure_01_motivating.pdf")
+pdf("plots/Figure_01_motivating.pdf", width = 7, height=6)
 
 ggplot(df, aes(year, mean)) +
   #geom_ribbon(aes(ymin=low,ymax=hi), alpha = 0.3, fill=my_col) +

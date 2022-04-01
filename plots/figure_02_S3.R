@@ -1,9 +1,9 @@
 library(ggplot2)
 library(dplyr)
 library(viridisLite)
+library(viridis)
 
-
-pdf("plots/Figure_02_trends.pdf")
+pdf("plots/Figure_02_trends.pdf", height = 5.5, width = 5.5)
 
 pred = read.csv("output/pred_dens_summary.csv")
 # remove duplicates in pred
@@ -43,7 +43,7 @@ dev.off()
 ######################################
 # This makes original without scaled trends
 
-pdf("plots/Figure_S3_trends.pdf")
+pdf("plots/Figure_S3_trends.pdf", height = 5.5, width = 5.5)
 
 pred = read.csv("output/pred_dens_summary.csv")
 # remove duplicates in pred
