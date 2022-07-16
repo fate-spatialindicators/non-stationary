@@ -24,7 +24,7 @@ mesh <- make_mesh(loc, xy_cols = c("x", "y"), cutoff = 0.1)
 #
 grid$trend_est = NA
 grid$trend_se = NA
-for(i in 385:nrow(grid)) {
+for(i in 1:nrow(grid)) {
   # reset seed so each iteration is using same betas
   set.seed(grid$iter[i])
   betas = runif(time_steps, 0, 5)
