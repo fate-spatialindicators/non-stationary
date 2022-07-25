@@ -23,8 +23,10 @@ grid = dplyr::mutate(grid,
 grid$cell = seq(1,nrow(grid))
 pred_grid = expand.grid(cell = grid$cell, year = 2003:2018)
 pred_grid = dplyr::left_join(pred_grid, grid)
+pred_grid$fyear = as.factor(pred_grid$year)
+pred_grid$time = as.numeric(as.character(pred_grid$year)) - floor(mean(unique(as.numeric(as.character(pred_grid$year)))))
+#as.numeric(pred_grid$year) - mean(pred_grid$year)
 pred_grid$year = as.factor(pred_grid$year)
-pred_grid$time = as.numeric(pred_grid$year) - floor(mean(unique(as.numeric(pred_grid$year))))
 
 null_predictions_summ = list()
 ll_predictions_summ = list()
@@ -33,24 +35,26 @@ ll_index = list()
 
 for(i in 1:nrow(species)){
 
-  load(file=paste0("output/", sub(" ", "_", species$common_name[[i]]),"_ar1_priors.RData"))
+  load(file=paste0("output/", sub(" ", "_", species$species[[i]]),"_ar1_priors.RData"))
 
   est_index = TRUE
-  if(class(ad_fit)=="try-error") est_index = FALSE
-  if(class(ad_fit_ll)=="try-error") est_index = FALSE
+  if(class(ad_fit)=="logical") est_index = FALSE
+  if(class(ad_fit_ll)=="logical") est_index = FALSE
 
   if(est_index==TRUE) {
-    null_predictions <- predict(ad_fit, newdata = pred_grid, sims = 500)
+    null_predictions <- predict(ad_fit, newdata = pred_grid, nsim = 500)
     mean_null <- apply(null_predictions, 1, mean)
     sd_null <- apply(null_predictions, 1, sd)
     null_predictions_summ[[i]] <- cbind(mean_null, sd_null)
     null_index[[i]] <- get_index_sims(null_predictions)
+    null_index[[i]]$common_name <- ad_fit$data$common_name[1]
 
-    ll_predictions <- predict(ad_fit_ll, newdata = pred_grid, sims = 500)
+    ll_predictions <- predict(ad_fit_ll, newdata = pred_grid, nsim = 500)
     mean_ll <- apply(ll_predictions, 1, mean)
     sd_ll <- apply(ll_predictions, 1, sd)
     ll_predictions_summ[[i]] <- cbind(mean_ll, sd_ll)
     ll_index[[i]] <- get_index_sims(ll_predictions)
+    ll_index[[i]]$common_name <- ad_fit_ll$data$common_name[1]
 
     # also calculate epsilon_st
     pred_null <- predict(ad_fit, newdata = pred_grid)

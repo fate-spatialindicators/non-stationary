@@ -43,29 +43,66 @@ ll_predictions = readRDS("output/ll_predictions_summary.rds")
 ```
 
 
-This is just using darkblotched rockfish, and years 2003 - 2018 for comparison
-```{r}
-indx = which(species$species=="Darkblotched rockfish")
-# get predictions for each model
-  pred_grid$pred_ll = ll_predictions[[indx]][,1]
-  pred_grid$pred_null = null_predictions[[indx]][,1]
-  # subset years to 2003 and 2018
-  pred_grid = dplyr::filter(pred_grid, year %in%c(2003,2018))
-```
+This is just using lingcod, and years 2003 - 2018 for comparison
 
-First we can make a plot of the absolute difference
+```{r}
+indx = which(species$species=="Lingcod")
+# get predictions for each model
+pred_grid$pred_ll_mean = ll_predictions[[indx]][,1]
+pred_grid$pred_null_mean = null_predictions[[indx]][,1]
+pred_grid$pred_ll_se = ll_predictions[[indx]][,2]
+pred_grid$pred_null_se = null_predictions[[indx]][,2]
+# subset years to 2003 and 2018
+pred_grid = dplyr::filter(pred_grid, year %in%c(2003,2018))
+
+# 2 data frames, one for diff in means, one for diff in ses
+diff_mean = dplyr::group_by(pred_grid, year, cell) %>% 
+  dplyr::summarise(diff = pred_ll_mean - pred_null_mean,
+                   lat = lat, lon = lon, metric="mean")
+diff_se = dplyr::group_by(pred_grid, year, cell) %>% 
+  dplyr::summarise(diff = pred_ll_se - pred_null_se,
+                   lat = lat, lon = lon, metric="se")
+diff_df = rbind(diff_mean, diff_se)
+```
 
 ```{r}
   # make plots of difference
-  g0 = pred_grid %>%
-    ggplot(aes(lon,lat,fill=pred_ll - pred_null)) +
+  g1 = diff_mean %>%
+    ggplot(aes(lon,lat,fill=exp(diff))) +
     geom_tile() +
-    scale_fill_gradient2() +
-    facet_grid(~year) +
+    scale_fill_gradient2(low="red",high="blue",midpoint=1, name="Ratio of means") +
+    facet_wrap(~year) +
     coord_fixed() +
-    theme_bw()
+    theme_bw() + 
+  xlab("") + ylab("") + 
+    theme(strip.background =element_rect(fill="white"))
+
+  g2 = diff_se %>%
+    ggplot(aes(lon,lat,fill=exp(diff))) +
+    geom_tile() +
+    scale_fill_gradient2(low="red",high="blue",midpoint=1, name="Ratio of SEs") +
+    facet_wrap(~year) +
+    coord_fixed() +
+    theme_bw() + 
+  xlab("") + ylab("") + 
+    theme(strip.background =element_rect(fill="white"))
+  
+  library(grid)
+  library(gridExtra)
+  library(cowplot)
+  library(egg)
+  library(ggpubr)
+  #g0 = cowplot::plot_grid(g1,g2,nrow=2)
+  g0=egg::ggarrange(g1,g2,nrow=2)
+  pdf("test_fig_4.pdf", height = 7, width=7)
+  h0 = annotate_figure(g0, 
+    left = textGrob("Latitude", rot = 90, vjust = 13, gp = gpar(cex = 1)),
+    bottom = textGrob("Longitude", hjust=1,vjust = -1,gp = gpar(cex =1)))
+  h0
+  dev.off()
 print(g0)
 ```
+
 
 ```{r}
   # calculate de-meaned data frame, subtracting off spatial mean for each cell

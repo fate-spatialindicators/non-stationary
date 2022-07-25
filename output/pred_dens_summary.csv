@@ -1,77 +1,77 @@
-"","name","model","loglinear","pred_dens","trend","trend_se","sigma"
-"1","sablefish","adult",FALSE,NA,NA,NA,NA
-"2","sablefish","adult",TRUE,NA,-0.00156998867935203,0.00757772066033416,0.122708185936352
-"3","flounder, arrowtooth","adult",FALSE,NA,NA,NA,NA
-"4","flounder, arrowtooth","adult",TRUE,NA,-0.0172068410002163,0.0146720995063858,0.397834211658528
-"5","sanddab, Pacific","adult",FALSE,NA,NA,NA,NA
-"6","sanddab, Pacific","adult",TRUE,NA,-0.0518359210933006,0.0135687797577054,0.431001693597088
-"7","Pacific grenadiers","adult",FALSE,NA,NA,NA,NA
-"8","Pacific grenadiers","adult",TRUE,NA,0.0045798643104747,0.0199109767863361,0.244286977508086
-"9","sole, deepsea","adult",FALSE,NA,NA,NA,NA
-"10","sole, deepsea","adult",TRUE,NA,-0.0834276883622552,0.110351611233545,0.22976819555884
-"11","sole, petrale","adult",FALSE,NA,NA,NA,NA
-"12","sole, petrale","adult",TRUE,NA,0.0275132580709065,0.0130667705594635,0.219445591965961
-"13","sole, rex","adult",FALSE,NA,NA,NA,NA
-"14","sole, rex","adult",TRUE,NA,-0.0549971384627835,0.0184155503565747,0.324098956119735
-"15","sole, flathead","adult",FALSE,NA,NA,NA,NA
-"16","sole, flathead","adult",TRUE,NA,-0.0679363471129145,0.0307502497722832,1.18572730732805
-"17","sole, Dover","adult",FALSE,NA,NA,NA,NA
-"18","sole, Dover","adult",TRUE,NA,-0.0498698237551584,0.02071579408609,0.319046309533818
-"19","lingcod","adult",FALSE,NA,NA,NA,NA
-"20","lingcod","adult",TRUE,NA,0.0406623464966729,0.00818616414251104,0.185522544530894
-"21","sole, English","adult",FALSE,NA,NA,NA,NA
-"22","sole, English","adult",TRUE,NA,0.00127684475152133,0.0139293810621791,0.336632504757078
-"23","turbot, curlfin","adult",FALSE,NA,NA,NA,NA
-"24","turbot, curlfin","adult",TRUE,NA,-0.0369364331645313,0.0370503883120801,1.01559041780341
-"25","skate, longnose","adult",FALSE,NA,NA,NA,NA
-"26","skate, longnose","adult",TRUE,NA,-0.0521500516729773,0.025603683023489,0.24339505880582
-"27","Pacific ocean perch","adult",FALSE,NA,NA,NA,NA
-"28","Pacific ocean perch","adult",TRUE,NA,-0.0578007139096175,0.0183384758382203,0.758487552916459
-"29","rockfish, aurora","adult",FALSE,NA,NA,NA,NA
-"30","rockfish, aurora","adult",TRUE,NA,-0.010504427627849,0.0212629126382578,0.656528880729546
-"31","rockfish, redbanded","adult",FALSE,NA,NA,NA,NA
-"32","rockfish, redbanded","adult",TRUE,NA,-0.0134427445579375,0.0143424481948757,0.378398654491473
-"33","rockfish, greenspotted","adult",FALSE,NA,NA,NA,NA
-"34","rockfish, greenspotted","adult",TRUE,NA,0.00827203439575741,0.0249164964533957,0.63771671536518
-"35","rockfish, darkblotched","adult",FALSE,NA,NA,NA,NA
-"36","rockfish, darkblotched","adult",TRUE,NA,0.0434828215470383,0.0136678195480753,0.415189961873599
-"37","rockfish, splitnose","adult",FALSE,NA,NA,NA,NA
-"38","rockfish, splitnose","adult",TRUE,NA,0.118062842592973,0.0110163025558626,0.308306242778169
-"39","rockfish, greenstriped","adult",FALSE,NA,NA,NA,NA
-"40","rockfish, greenstriped","adult",TRUE,NA,-0.0178260281197252,0.0162809324577883,0.810985539237843
-"41","rockfish, chilipepper","adult",FALSE,NA,NA,NA,NA
-"42","rockfish, chilipepper","adult",TRUE,NA,-0.0175386050346645,0.012537980143781,0.636431647259849
-"43","rockfish, rosethorn","adult",FALSE,NA,NA,NA,NA
-"44","rockfish, rosethorn","adult",TRUE,NA,-0.0574898862378932,0.0363271485581029,0.760826888193704
-"45","rockfish, shortbelly","adult",FALSE,NA,NA,NA,NA
-"46","rockfish, shortbelly","adult",TRUE,NA,-0.0245502082334868,0.0117842915992335,0.667277458152544
-"47","rockfish, melanostomus","adult",FALSE,NA,NA,NA,NA
-"48","rockfish, melanostomus","adult",TRUE,NA,-0.0205232242729431,0.0189428560315607,0.464191090176458
-"49","bocaccio","adult",FALSE,NA,NA,NA,NA
-"50","bocaccio","adult",TRUE,NA,-0.0186605708339269,0.0138072633337549,0.456647096045443
-"51","rockfish, stripetail","adult",FALSE,NA,NA,NA,NA
-"52","rockfish, stripetail","adult",TRUE,NA,0.0028209317775982,0.0143499461965302,0.454180723038511
-"53","rockfish, sharpchin","adult",FALSE,NA,NA,NA,NA
-"54","rockfish, sharpchin","adult",TRUE,NA,-0.0456562288932143,0.0177666112317523,0.865876051787256
-"55","thornyhead, shortspine ","adult",FALSE,NA,NA,NA,NA
-"56","thornyhead, shortspine ","adult",TRUE,NA,0.0403541847270536,0.0304869939046843,0.754381394968426
-"57","thornyhead, longspine","adult",FALSE,NA,NA,NA,NA
-"58","thornyhead, longspine","adult",TRUE,NA,-0.0209190024732427,0.0162396154723142,0.153958851227133
-"59","dogfish, North Pacific","adult",FALSE,NA,NA,NA,NA
-"60","dogfish, North Pacific","adult",TRUE,NA,0.00634737904679518,0.00857870107503903,0.305764627307779
-"61","thornyhead, longspine","adult",FALSE,NA,NA,NA,NA
-"62","thornyhead, longspine","adult",TRUE,NA,-0.0209190024732427,0.0162396154723142,0.153958851227133
-"63","crab, Dungeness","adult",FALSE,NA,NA,NA,NA
-"64","crab, Dungeness","adult",TRUE,NA,-0.0283238887806066,0.0113980053092378,0.340267492998066
-"65","ratfish, spotted","adult",FALSE,NA,NA,NA,NA
-"66","ratfish, spotted","adult",TRUE,NA,-0.0522515492816547,0.00950875923572334,0.318844578377859
-"67","grenadier, giant","adult",FALSE,NA,NA,NA,NA
-"68","grenadier, giant","adult",TRUE,NA,-0.0377487774936798,0.0312263614566731,0.310321801786068
-"69","rockfish, halfbanded","adult",FALSE,NA,NA,NA,NA
-"70","rockfish, halfbanded","adult",TRUE,NA,-0.0436820590316302,0.016103354672798,1.01852972398691
-"71","sole, slender","adult",FALSE,NA,NA,NA,NA
-"72","sole, slender","adult",TRUE,NA,0.0694549062423454,0.0160234208832948,0.424068965537814
-"73","crab, tanner","adult",FALSE,NA,NA,NA,NA
-"74","crab, tanner","adult",TRUE,NA,0.00352188712708748,0.00950742683723024,0.187111579095462
-"75","skate, sandpaper","adult",FALSE,NA,NA,NA,NA
-"76","skate, sandpaper","adult",TRUE,NA,-0.128748323883596,0.0264414923575475,0.419540008093663
+"","name","model","loglinear","pred_dens","trend","trend_se","sigma","common_name","scientific_name"
+"1","Sablefish","adult",FALSE,NA,NA,NA,NA,"Sablefish","Anoplopoma fimbria"
+"2","Sablefish","adult",TRUE,NA,-0.000729247847161701,0.00777757358436007,0.691839647753991,"Sablefish","Anoplopoma fimbria"
+"3","Arrowtooth flounder","adult",FALSE,NA,NA,NA,NA,"Arrowtooth flounder","Atheresthes stomias"
+"4","Arrowtooth flounder","adult",TRUE,NA,-0.0312040845716178,0.0144917998402774,1.73264057378115,"Arrowtooth flounder","Atheresthes stomias"
+"5","Pacific sanddab","adult",FALSE,NA,NA,NA,NA,"Pacific sanddab","Citharichthys sordidus"
+"6","Pacific sanddab","adult",TRUE,NA,-0.0450166829766253,0.0135760354087097,1.48685378255112,"Pacific sanddab","Citharichthys sordidus"
+"7","Pacific grenadiers","adult",FALSE,NA,NA,NA,NA,"Pacific grenadiers","Coryphaenoides acrolepis"
+"8","Pacific grenadiers","adult",TRUE,NA,0.00720577090361807,0.0210489169963226,1.03085454342087,"Pacific grenadiers","Coryphaenoides acrolepis"
+"9","Deepsea sole","adult",FALSE,NA,NA,NA,NA,"Deepsea sole","Embassichthys bathybius"
+"10","Deepsea sole","adult",TRUE,NA,-0.06930589593086,0.0912039666429259,0.836637041358958,"Deepsea sole","Embassichthys bathybius"
+"11","Petrale sole","adult",FALSE,NA,NA,NA,NA,"Petrale sole","Eopsetta jordani"
+"12","Petrale sole","adult",TRUE,NA,0.0410460037455776,0.0137973393078627,0.826615008858185,"Petrale sole","Eopsetta jordani"
+"13","Rex sole","adult",FALSE,NA,NA,NA,NA,"Rex sole","Glyptocephalus zachirus"
+"14","Rex sole","adult",TRUE,NA,-0.0413594578532196,0.01670384325415,1.14157268786767,"Rex sole","Glyptocephalus zachirus"
+"15","Flathead sole","adult",FALSE,NA,NA,NA,NA,"Flathead sole","Hippoglossoides elassodon"
+"16","Flathead sole","adult",TRUE,NA,-0.0627717357740916,0.0313909418301552,2.14904092271672,"Flathead sole","Hippoglossoides elassodon"
+"17","Dover sole","adult",FALSE,NA,NA,NA,NA,"Dover sole","Microstomus pacificus"
+"18","Dover sole","adult",TRUE,NA,-0.0413480266508006,0.0176905840903171,1.22171232373613,"Dover sole","Microstomus pacificus"
+"19","Lingcod","adult",FALSE,NA,NA,NA,NA,"Lingcod","Ophiodon elongatus"
+"20","Lingcod","adult",TRUE,NA,0.0455561853230786,0.00883212379721078,0.79852747444074,"Lingcod","Ophiodon elongatus"
+"21","English sole","adult",FALSE,NA,NA,NA,NA,"English sole","Parophrys vetulus"
+"22","English sole","adult",TRUE,NA,-0.0131122605830874,0.0118681860991206,1.09154767940991,"English sole","Parophrys vetulus"
+"23","Curlfin sole","adult",FALSE,NA,NA,NA,NA,"Curlfin sole","Pleuronichthys decurrens"
+"24","Curlfin sole","adult",TRUE,NA,-0.0181984973835078,0.033497765437781,1.90136287546855,"Curlfin sole","Pleuronichthys decurrens"
+"25","Longnose skate","adult",FALSE,NA,NA,NA,NA,"Longnose skate","Raja rhina"
+"26","Longnose skate","adult",TRUE,NA,-0.049901896751081,0.0240312672568576,0.686235283341633,"Longnose skate","Raja rhina"
+"27","Pacific ocean perch","adult",FALSE,NA,NA,NA,NA,"Pacific ocean perch","Sebastes alutus"
+"28","Pacific ocean perch","adult",TRUE,NA,-0.0624786356759652,0.0209594173923592,2.2164247950147,"Pacific ocean perch","Sebastes alutus"
+"29","Aurora rockfish","adult",FALSE,NA,NA,NA,NA,"Aurora rockfish","Sebastes aurora"
+"30","Aurora rockfish","adult",TRUE,NA,0.0161103705058428,0.0201106287262072,1.30907550908841,"Aurora rockfish","Sebastes aurora"
+"31","Redbanded rockfish","adult",FALSE,NA,NA,NA,NA,"Redbanded rockfish","Sebastes babcocki"
+"32","Redbanded rockfish","adult",TRUE,NA,-0.0297709873875709,0.0170679449642739,1.20696543507631,"Redbanded rockfish","Sebastes babcocki"
+"33","Greenspotted rockfish","adult",FALSE,NA,NA,NA,NA,NA,NA
+"34","Greenspotted rockfish","adult",TRUE,NA,NA,NA,NA,NA,NA
+"35","Darkblotched rockfish","adult",FALSE,NA,NA,NA,NA,"Darkblotched rockfish","Sebastes crameri"
+"36","Darkblotched rockfish","adult",TRUE,NA,0.0580053686562304,0.0144672073204298,1.41518134604214,"Darkblotched rockfish","Sebastes crameri"
+"37","Splitnose rockfish ","adult",FALSE,NA,NA,NA,NA,"Splitnose rockfish ","Sebastes diploproa"
+"38","Splitnose rockfish ","adult",TRUE,NA,0.0947641170527645,0.0105070931176857,0.990079316398321,"Splitnose rockfish ","Sebastes diploproa"
+"39","Greenstriped rockfish","adult",FALSE,NA,NA,NA,NA,NA,NA
+"40","Greenstriped rockfish","adult",TRUE,NA,NA,NA,NA,NA,NA
+"41","Chilipepper rockfish","adult",FALSE,NA,NA,NA,NA,"Chilipepper rockfish","Sebastes goodei"
+"42","Chilipepper rockfish","adult",TRUE,NA,-0.0170489324132962,0.0128632362296588,1.92589740941759,"Chilipepper rockfish","Sebastes goodei"
+"43","Rosethorn rockfish","adult",FALSE,NA,NA,NA,NA,"Rosethorn rockfish","Sebastes helvomaculatus"
+"44","Rosethorn rockfish","adult",TRUE,NA,-0.0742310318614993,0.0433795588191206,1.90575812500007,"Rosethorn rockfish","Sebastes helvomaculatus"
+"45","Shortbelly rockfish","adult",FALSE,NA,NA,NA,NA,"Shortbelly rockfish","Sebastes jordani"
+"46","Shortbelly rockfish","adult",TRUE,NA,-0.0293777302565219,0.0117267621831699,1.95174228338942,"Shortbelly rockfish","Sebastes jordani"
+"47","Melanostomus rockfish","adult",FALSE,NA,NA,NA,NA,"Melanostomus rockfish","Sebastes melanostomus"
+"48","Melanostomus rockfish","adult",TRUE,NA,-0.0161124975878593,0.019814982067417,1.33032342149391,"Melanostomus rockfish","Sebastes melanostomus"
+"49","Bocaccio","adult",FALSE,NA,NA,NA,NA,"Bocaccio","Sebastes paucispinis"
+"50","Bocaccio","adult",TRUE,NA,-0.0173876305154365,0.0151853053072607,1.48803626757189,"Bocaccio","Sebastes paucispinis"
+"51","Stripetail rockfish","adult",FALSE,NA,NA,NA,NA,NA,NA
+"52","Stripetail rockfish","adult",TRUE,NA,NA,NA,NA,NA,NA
+"53","Sharpchin rockfish","adult",FALSE,NA,NA,NA,NA,NA,NA
+"54","Sharpchin rockfish","adult",TRUE,NA,NA,NA,NA,NA,NA
+"55","Shortspine thornyhead ","adult",FALSE,NA,NA,NA,NA,"Shortspine thornyhead ","Sebastolobus alascanus"
+"56","Shortspine thornyhead ","adult",TRUE,NA,0.0379739435923417,0.032191833086369,1.64829340333681,"Shortspine thornyhead ","Sebastolobus alascanus"
+"57","Longspine thornyhead","adult",FALSE,NA,NA,NA,NA,"Longspine thornyhead","Sebastolobus altivelis"
+"58","Longspine thornyhead","adult",TRUE,NA,-0.0114641752109057,0.0166825877198747,0.882400802229726,"Longspine thornyhead","Sebastolobus altivelis"
+"59","Dogfish","adult",FALSE,NA,NA,NA,NA,"Dogfish","Squalus suckleyi"
+"60","Dogfish","adult",TRUE,NA,0.0155414591424771,0.00792438436438408,1.07489107877019,"Dogfish","Squalus suckleyi"
+"61","Longspine thornyhead","adult",FALSE,NA,NA,NA,NA,"Longspine thornyhead","Sebastolobus altivelis"
+"62","Longspine thornyhead","adult",TRUE,NA,-0.0114641752109057,0.0166825877198747,0.882400802229726,"Longspine thornyhead","Sebastolobus altivelis"
+"63","Dungeness crab","adult",FALSE,NA,NA,NA,NA,"Dungeness crab","Cancer magister"
+"64","Dungeness crab","adult",TRUE,NA,-0.0215859685454883,0.0105396879490761,1.33548759136981,"Dungeness crab","Cancer magister"
+"65","Spotted ratfish","adult",FALSE,NA,NA,NA,NA,"Spotted ratfish","Hydrolagus colliei"
+"66","Spotted ratfish","adult",TRUE,NA,-0.0513124290355387,0.00877204700868534,1.35467447367653,"Spotted ratfish","Hydrolagus colliei"
+"67","Giant grenadier","adult",FALSE,NA,NA,NA,NA,"Giant grenadier","Albatrossia pectoralis"
+"68","Giant grenadier","adult",TRUE,NA,-0.043337306216974,0.0281545488371632,0.893296405183462,"Giant grenadier","Albatrossia pectoralis"
+"69","Halfbanded rockfish","adult",FALSE,NA,NA,NA,NA,"Halfbanded rockfish","Sebastes semicinctus"
+"70","Halfbanded rockfish","adult",TRUE,NA,-0.0483025286885406,0.0171877177753199,2.2216528342162,"Halfbanded rockfish","Sebastes semicinctus"
+"71","Slender sole","adult",FALSE,NA,NA,NA,NA,"Slender sole","Lyopsetta exilis"
+"72","Slender sole","adult",TRUE,NA,-0.00830428991895639,0.0221041479850011,3.14314842460068,"Slender sole","Lyopsetta exilis"
+"73","Tanner crab","adult",FALSE,NA,NA,NA,NA,"Tanner crab","Chionoecetes tanneri"
+"74","Tanner crab","adult",TRUE,NA,0.00383094858284821,0.00956661249588154,0.880061112888092,"Tanner crab","Chionoecetes tanneri"
+"75","Sandpaper skate","adult",FALSE,NA,NA,NA,NA,"Sandpaper skate","Bathyraja kincaidii"
+"76","Sandpaper skate","adult",TRUE,NA,-0.136576237198,0.0256476741575999,1.41251586963881,"Sandpaper skate","Bathyraja kincaidii"

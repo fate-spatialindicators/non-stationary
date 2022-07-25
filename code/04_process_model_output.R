@@ -68,11 +68,13 @@ species = dplyr::rename(species,
                         common_name = common.name,
                         scientific_name = scientific.name)
 
+#species_names = saveRDS(data.frame("species"=unique(dat$scientific_name)), file="species.rds")
+
 for(i in 1:nrow(species)){
 
-  comm_name = species$common_name[i]
+  comm_name = species$species[i]
 
-  load(file=paste0("output/", sub(" ", "_", comm_name),"_ar1_priors.RData"))
+  load(file=paste0("output/", sub(" ", "_", comm_name), "_ar1_priors.RData"))
 
   df = data.frame(name = comm_name,
                   model = c("adult", "adult"),
@@ -81,15 +83,18 @@ for(i in 1:nrow(species)){
   df$trend = NA
   df$trend_se = NA
   df$sigma = NA
-
+  df$common_name <- NA
+  df$scientific_name <- NA
   #if(class(ad_fit)!="try-error") {
   #  df$pred_dens[1] = ad_fit$sum_loglik
   #}
-  if(class(ad_fit_ll)!="try-error") {
+  if(class(ad_fit_ll)!="logical") {
     #df$pred_dens[2] = ad_fit_ll$sum_loglik
     df$trend[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "b_epsilon")]
     df$trend_se[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "b_epsilon")]
-    df$sigma[2] = ad_fit_ll$sd_report$sd[which(names(ad_fit_ll$sd_report$value) == "sigma_E")[1]]
+    df$sigma[2] = ad_fit_ll$sd_report$value[which(names(ad_fit_ll$sd_report$value) == "log_sigma_E")[1]]
+    df$common_name <- ad_fit_ll$data$common_name[1]
+    df$scientific_name <- ad_fit_ll$data$scientific_name[1]
   }
 
   if(i==1) {

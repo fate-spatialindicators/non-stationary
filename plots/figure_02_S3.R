@@ -8,22 +8,32 @@ pdf("plots/Figure_02_trends.pdf", height = 5.5, width = 5.5)
 pred = read.csv("output/pred_dens_summary.csv")
 # remove duplicates in pred
 
-names = read.csv("data/name_change.csv") %>%
-  dplyr::rename(name = old_name)
+pred = pred[-which(pred$common_name=="Longspine thornyhead")[1:2],]
 
-pred = dplyr::left_join(pred,names) %>%
+#names = read.csv("data/name_change.csv") %>%
+#  dplyr::rename(name = old_name)
+
+pred <- pred %>%
   dplyr::mutate(trend_sigma = trend/sigma) %>%
-  dplyr::filter(loglinear==TRUE, name != c("sole, deepsea")) %>%
+  dplyr::filter(loglinear==TRUE, !is.na(trend_se), common_name != "Deepsea sole",
+                common_name != "Giant grenadier") %>%
   dplyr::arrange(trend_sigma)
-pred = pred[which(duplicated(pred$new_name)==FALSE),]
-pred$new_name[which(is.na(pred$new_name))] = "Shortspine thornyhead"
+#pred = dplyr::left_join(pred,names) %>%
+#  dplyr::mutate(trend_sigma = trend/sigma) %>%
+#  dplyr::filter(loglinear==TRUE, name != c("sole, deepsea")) %>%
+#  dplyr::arrange(trend_sigma)
+#pred = pred[which(duplicated(pred$new_name)==FALSE),]
+#pred$new_name[which(is.na(pred$new_name))] = "Shortspine thornyhead"
 #x$name <- factor(x$name, levels = x$name[order(x$val)])
+
+pred$common_name[which(pred$common_name == "Shortspine thornyhead ")] = "Shortspine thornyhead"
+pred$common_name[which(pred$common_name == "Splitnose rockfish ")] = "Splitnose rockfish"
 
 top5_bottom5 = pred[c(1:5, (nrow(pred)-4):nrow(pred)),]
 saveRDS(top5_bottom5,"output/top5_bottom5.rds")
 
-pred$new_name <- factor(pred$new_name, levels = pred$new_name)
 # change order of factor levels
+pred$new_name <- factor(pred$common_name, levels = pred$common_name)
 
 my_col = viridis(1, end=0.8)
 p1 = ggplot(pred, aes(new_name,trend_sigma)) +
@@ -46,23 +56,23 @@ dev.off()
 pdf("plots/Figure_S3_trends.pdf", height = 5.5, width = 5.5)
 
 pred = read.csv("output/pred_dens_summary.csv")
-# remove duplicates in pred
 
-names = read.csv("data/name_change.csv") %>%
-  dplyr::rename(name = old_name)
+pred = pred[-which(pred$common_name=="Longspine thornyhead")[1:2],]
 
-pred = dplyr::left_join(pred,names) %>%
-  dplyr::filter(loglinear==TRUE, name != c("sole, deepsea")) %>%
+pred <- pred %>%
+  dplyr::mutate(trend_sigma = trend/sigma) %>%
+  dplyr::filter(loglinear==TRUE, !is.na(trend_se), common_name != "Deepsea sole",
+                common_name != "Giant grenadier") %>%
   dplyr::arrange(trend)
-pred = pred[which(duplicated(pred$new_name)==FALSE),]
-pred$new_name[which(is.na(pred$new_name))] = "Shortspine thornyhead"
-#x$name <- factor(x$name, levels = x$name[order(x$val)])
+
+pred$common_name[which(pred$common_name == "Shortspine thornyhead ")] = "Shortspine thornyhead"
+pred$common_name[which(pred$common_name == "Splitnose rockfish ")] = "Splitnose rockfish"
 
 #top5_bottom5 = pred[c(1:5, (nrow(pred)-4):nrow(pred)),]
 #saveRDS(top5_bottom5,"output/top5_bottom5.rds")
 
-pred$new_name <- factor(pred$new_name, levels = pred$new_name)
 # change order of factor levels
+pred$new_name <- factor(pred$common_name, levels = pred$common_name)
 
 my_col = viridis(1, end=0.8)
 p1 = ggplot(pred, aes(new_name,trend)) +

@@ -4,46 +4,34 @@ library(viridis)
 
 # for plots, drop 2 elements of the list: Deepsea sole (doesn't converge) and
 # Longspine thornyhead because it was run 2x
-spp_to_drop = c(5, 31)
-# Species of interest
-species = read.csv("survey_data/species_list.csv", fileEncoding="UTF-8-BOM")
-names(species) = tolower(names(species))
-species = dplyr::rename(species,
-                        common_name = common.name,
-                        scientific_name = scientific.name)
-species = species[-c(spp_to_drop),]
-
 
 #---- plot results
 null_index = readRDS("output/null_index_range15_sigma10.rds")
 ll_index = readRDS("output/ll_index_range15_sigma10.rds")
-null_index = null_index[-spp_to_drop]
-ll_index = ll_index[-spp_to_drop]
+#species_names = readRDS(file="species.rds")
+#for(i in 1:length(null_index)) {
+  #if(!is.null(null_index[[i]])) {
+  #  null_index[[i]]$species <- species_names$common_name[i]
+  #}
+  #if(!is.null(ll_index[[i]])) {
+  #  ll_index[[i]]$species <- species_names$common_name[i]
+  #}
+#}
 
 null_df = bind_rows(null_index)
-null_df$species = c(t(replicate(species$common_name,n=length(2003:2018))))
+ll_df = bind_rows(ll_index)
 
 null_df$model = "Constant"
-ll_df = bind_rows(ll_index)
-ll_df$species = c(t(replicate(species$common_name,n=length(2003:2018))))
 ll_df$model = "Log-linear"
 joined_df = rbind(ll_df, null_df)
 
-joined_df = dplyr::filter(joined_df, species != "")
-
-# join in names
-new_names = read.csv("data/name_change.csv") %>%
-  dplyr::rename(species = old_name)
-joined_df = dplyr::left_join(joined_df, new_names)
-joined_df$new_name[which(is.na(joined_df$new_name))] = "Shortspine thornyhead"
-
-joined_df$new_name[which(joined_df$new_name == "Pacific grenadiers")] = "Pacific grenadier"
+joined_df = dplyr::filter(joined_df, common_name != "")
 
 pdf("plots/Figure_S4_biomass_index_log.pdf")
 ggplot(joined_df, aes(year, log_est, fill=model, col=model, group=model)) +
   geom_line(alpha=0.5) +
   geom_ribbon(aes(ymin = log(lwr), ymax = log(upr)), alpha=0.4, colour = NA) +
-  facet_wrap(~ new_name, scale="free_y", ncol = 5) +
+  facet_wrap(~ common_name, scale="free_y", ncol = 5) +
   theme_bw() +
   ylab("Ln biomass index (+/- 2SE)") +
   theme(strip.background =element_rect(fill="white")) +
@@ -66,11 +54,16 @@ joined_df$model = as.factor(joined_df$model)
 
 top5_bottom5 = readRDS("output/top5_bottom5.rds")
 
-sub_df = dplyr::filter(joined_df, new_name %in% top5_bottom5$new_name)
-
 # order based on species
-sub_df$new_name = factor(sub_df$new_name, levels = c("Splitnose rockfish","Lingcod","Slender sole","Petrale sole","Darkblotched rockfish","Dover sole",
-                                                     "Spotted ratfish","Rex sole","Longnose skate","Sandpaper skate"))
+sub_df <- joined_df
+sub_df$common_name[which(sub_df$common_name == "Splitnose rockfish ")] = "Splitnose rockfish"
+sub_df$common_name[which(sub_df$common_name == "Shortspine thornyhead ")] = "Shortspine thornyhead"
+
+sub_df = dplyr::filter(sub_df, common_name %in% top5_bottom5$common_name)
+
+sub_df$new_name = factor(sub_df$common_name, levels = c("Splitnose rockfish","Lingcod","Petrale sole","Darkblotched rockfish",
+                                                     "Shortspine thornyhead"
+                                                     ,"Rex sole","Spotted ratfish","Rosethorn rockfish","Longnose skate","Sandpaper skate"))
 
 pdf("plots/Figure_3_biomass_index_top5.pdf",height = 5,width = 7)
 ggplot(sub_df, aes(year, log_est, fill=model, col=model, group=model)) +
@@ -93,23 +86,23 @@ ggplot(sub_df, aes(year, log_est, fill=model, col=model, group=model)) +
   scale_fill_brewer(palette="Dark2")
 dev.off()
 
-df = null_df[,c("year","est","species","se")]
+df = null_df[,c("year","est","common_name","se")]
 df$est_ll = ll_df$est
 df$se_ll = ll_df$se
 df$ratio = df$est_ll / df$est
 df$ratio_se = df$se_ll / df$se
-df = dplyr::filter(df, species!="")
+df = dplyr::filter(df, common_name!="")
 
 # join in names
-new_names = read.csv("data/name_change.csv") %>%
-  dplyr::rename(species = old_name)
-df = dplyr::left_join(df, new_names)
-df$new_name[which(is.na(df$new_name))] = "Shortspine thornyhead"
+# new_names = read.csv("data/name_change.csv") %>%
+#   dplyr::rename(species = old_name)
+# df = dplyr::left_join(df, new_names)
+# df$new_name[which(is.na(df$new_name))] = "Shortspine thornyhead"
 
 pdf("plots/Figure_S5_ratio.pdf")
-ggplot(df, aes(year, ratio,group=new_name)) +
+ggplot(df, aes(year, ratio,group=common_name)) +
   geom_line() +
-  facet_wrap(~ new_name, scale="free_y", ncol = 5) +
+  facet_wrap(~ common_name, scale="free_y", ncol = 5) +
   theme_bw() +
   ylab("Ratio log-linear estimate / null estimated biomass") +
   theme_bw() +
@@ -122,9 +115,9 @@ dev.off()
 
 
 pdf("plots/Figure_S6_ratio_se.pdf")
-ggplot(df, aes(year, ratio_se,group=new_name)) +
+ggplot(df, aes(year, ratio_se,group=common_name)) +
   geom_line() +
-  facet_wrap(~ new_name, scale="free_y", ncol = 5) +
+  facet_wrap(~ common_name, scale="free_y", ncol = 5) +
   theme_bw() +
   ylab("Ratio of log-linear SE / null biomass SE") +
   theme_bw() +
